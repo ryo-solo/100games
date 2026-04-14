@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TASK DODGER — Day 001</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #080812;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', monospace;
+    overflow: hidden;
+  }
+  .header {
+    text-align: center; margin-bottom: 20px;
+  }
+  .header .day { color: #4f46e5; font-size: 11px; letter-spacing: 0.2em; margin-bottom: 6px; }
+  .header h1 { color: #fff; font-size: 22px; font-weight: 900; letter-spacing: 0.05em; }
+  .header .sub { color: #555; font-size: 11px; margin-top: 4px; }
+
+  #gameWrap {
+    position: relative;
+    border: 1px solid #1e1e3a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(79,70,229,0.15);
+  }
+  canvas { display: block; }
+
+  #ui {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px;
+    background: linear-gradient(rgba(8,8,18,0.9), transparent);
+    pointer-events: none;
+  }
+  #ui .score-box { text-align: left; }
+  #ui .score-label { color: #4f46e5; font-size: 10px; letter-spacing: 0.12em; }
+  #ui .score-val { color: #fff; font-size: 24px; font-weight: 900; line-height: 1; }
+  #ui .life-box { display: flex; gap: 6px; }
+  #ui .heart { font-size: 16px; transition: opacity 0.3s; }
+  #ui .heart.dead { opacity: 0.2; }
+  #ui .ai-box { text-align: right; }
+  #ui .ai-label { color: #34d399; font-size: 10px; letter-spacing: 0.12em; }
+  #ui .ai-val { color: #34d399; font-size: 14px; font-weight: 700; }
+
+  #overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: rgba(8,8,18,0.92);
+    backdrop-filter: blur(4px);
+  }
+  #overlay .ov-tag { color: #4f46e5; font-size: 11px; letter-spacing: 0.2em; margin-bottom: 12px; }
+  #overlay .ov-title { color: #fff; font-size: 28px; font-weight: 900; margin-bottom: 8px; text-align: center; line-height: 1.3; }
+  #overlay .ov-desc { color: #666; font-size: 12px; margin-bottom: 30px; text-align: center; line-height: 1.8; }
+  #overlay .ov-score { color: #fff; font-size: 48px; font-weight: 900; margin-bottom: 6px; }
+  #overlay .ov-best { color: #4f46e5; font-size: 13px; margin-bottom: 28px; }
+  #overlay button {
+    background: #4f46e5; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 14px 40px; font-size: 14px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.08em;
+    transition: all 0.2s; font-family: inherit;
+  }
+  #overlay button:hover { background: #6366f1; transform: scale(1.04); }
+  .key-hint { margin-top: 16px; color: #333; font-size: 11px; }
+
+  .footer {
+    margin-top: 16px; color: #333; font-size: 11px;
+    text-align: center; letter-spacing: 0.06em;
+  }
+  .footer span { color: #4f46e5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="day">100 DAYS CHALLENGE — DAY 001</div>
+  <h1>TASK DODGER</h1>
+  <div class="sub">AIが戦略からコードまで全部作ったゲーム</div>
+</div>
+
+<div id="gameWrap">
+  <canvas id="c"></canvas>
+  <div id="ui">
+    <div class="score-box">
+      <div class="score-label">SCORE</div>
+      <div class="score-val" id="scoreDisp">0</div>
+    </div>
+    <div class="life-box" id="hearts">
+      <div class="heart">❤️</div>
+      <div class="heart">❤️</div>
+      <div class="heart">❤️</div>
+    </div>
+    <div class="ai-box">
+      <div class="ai-label">AI BOOST</div>
+      <div class="ai-val" id="boostDisp">×1.0</div>
+    </div>
+  </div>
+  <div id="overlay">
+    <div class="ov-tag">100 DAYS CHALLENGE</div>
+    <div class="ov-title">TASK DODGER</div>
+    <div class="ov-desc">
+      タスクを避けろ。<br>
+      🤖 を取るとAIが助けてくれる。<br>
+      ← → キー（またはタップ）で移動
+    </div>
+    <button id="startBtn" onclick="startGame()">START</button>
+    <div class="key-hint">← → Arrow keys / Tap left or right</div>
+  </div>
+</div>
+
+<div class="footer">Made by <span>AI</span> — Strategy · Code · Design · All automated</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 400, H = 560;
+canvas.width = W; canvas.height = H;
+
+// ── State ──
+let state = 'idle'; // idle | play | dead
+let score = 0, bestScore = 0, lives = 3, frame = 0;
+let aiBoost = 1.0, boostTimer = 0;
+let player, items, particles;
+
+// ── Player ──
+function initPlayer() {
+  player = { x: W/2, y: H - 70, w: 44, h: 44, vx: 0, speed: 5.5, invincible: 0 };
+}
+
+// ── Items ──
+function spawnItem() {
+  const types = ['task','task','task','task','mail','mail','ai'];
+  const t = types[Math.floor(Math.random()*types.length)];
+  const speed = 2.5 + score*0.008 + Math.random()*1.5;
+  items.push({ x: 30+Math.random()*(W-60), y: -30, w:36, h:36, type:t, speed, angle:0 });
+}
+
+// ── Particles ──
+function burst(x, y, color, n=8) {
+  for(let i=0;i<n;i++){
+    const a = (Math.PI*2/n)*i + Math.random()*0.5;
+    const s = 1.5 + Math.random()*3;
+    particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s, life:1, color, r: 3+Math.random()*3 });
+  }
+}
+
+// ── Draw helpers ──
+function roundRect(x,y,w,h,r,fill,stroke){
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,r);
+  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=2; ctx.stroke(); }
+}
+
+function drawPlayer(p) {
+  const blink = p.invincible > 0 && Math.floor(p.invincible/4)%2===0;
+  if(blink) return;
+  const x=p.x-p.w/2, y=p.y-p.h/2;
+  // body
+  const grad = ctx.createLinearGradient(x,y,x,y+p.h);
+  grad.addColorStop(0,'#6366f1'); grad.addColorStop(1,'#4f46e5');
+  roundRect(x,y,p.w,p.h,10,grad);
+  // face
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(x+12,y+16,4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+32,y+16,4,0,Math.PI*2); ctx.fill();
+  // mouth
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.lineCap='round';
+  ctx.beginPath(); ctx.arc(x+22,y+28,8,0.2,Math.PI-0.2); ctx.stroke();
+  // glow
+  ctx.shadowColor='#4f46e5'; ctx.shadowBlur=20;
+  roundRect(x,y,p.w,p.h,10,null,'rgba(99,102,241,0.4)');
+  ctx.shadowBlur=0;
+}
+
+function drawItem(it) {
+  const x=it.x-it.w/2, y=it.y-it.h/2;
+  ctx.save();
+  ctx.translate(it.x, it.y);
+  ctx.rotate(it.angle);
+  ctx.translate(-it.x,-it.y);
+
+  if(it.type==='task'){
+    roundRect(x,y,it.w,it.h,6,'#1e1240','#7c3aed');
+    ctx.fillStyle='#a78bfa'; ctx.font='bold 11px monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('TASK',it.x,it.y-5);
+    ctx.fillStyle='#6d28d9'; ctx.font='9px monospace';
+    ctx.fillText('緊急！',it.x,it.y+8);
+  } else if(it.type==='mail'){
+    roundRect(x,y,it.w,it.h,6,'#1a1a35','#f59e0b');
+    ctx.fillStyle='#fbbf24'; ctx.font='18px serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('✉',it.x,it.y+1);
+  } else { // ai
+    ctx.shadowColor='#34d399'; ctx.shadowBlur=16;
+    roundRect(x,y,it.w,it.h,50,'#064e3b','#34d399');
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#6ee7b7'; ctx.font='bold 14px monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🤖',it.x,it.y+1);
+  }
+  ctx.restore();
+}
+
+function drawBg() {
+  // dark gradient bg
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0d0d20'); bg.addColorStop(1,'#080812');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // grid lines
+  ctx.strokeStyle='rgba(79,70,229,0.05)'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // ground line
+  ctx.strokeStyle='rgba(99,102,241,0.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H-30); ctx.lineTo(W,H-30); ctx.stroke();
+}
+
+// ── Main loop ──
+function loop() {
+  if(state!=='play'){ requestAnimationFrame(loop); return; }
+  frame++;
+
+  // move player
+  player.x += player.vx;
+  player.x = Math.max(player.w/2, Math.min(W-player.w/2, player.x));
+  if(player.invincible>0) player.invincible--;
+  if(boostTimer>0){ boostTimer--; if(boostTimer===0){ aiBoost=1.0; updateBoostUI(); } }
+
+  // spawn
+  const spawnRate = Math.max(28, 55 - score*0.3);
+  if(frame % Math.floor(spawnRate) === 0) spawnItem();
+
+  // update items
+  for(let i=items.length-1;i>=0;i--){
+    const it=items[i];
+    it.y += it.speed * aiBoost;
+    it.angle += 0.02;
+    if(it.y > H+40){ items.splice(i,1); score += (it.type==='task'||it.type==='mail')?1:0; continue; }
+
+    // collision
+    const dx=Math.abs(player.x-it.x), dy=Math.abs(player.y-it.y);
+    if(dx < (player.w+it.w)/2-6 && dy < (player.h+it.h)/2-6) {
+      items.splice(i,1);
+      if(it.type==='ai'){
+        aiBoost = 0.4; boostTimer=180;
+        burst(it.x,it.y,'#34d399',12);
+        updateBoostUI();
+      } else if(player.invincible===0){
+        burst(player.x,player.y,'#ef4444',10);
+        lives--;
+        player.invincible=60;
+        updateLives();
+        if(lives<=0){ endGame(); return; }
+      }
+    }
+  }
+
+  // particles
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life-=0.04; p.r*=0.96;
+    if(p.life<=0) particles.splice(i,1);
+  }
+
+  // score
+  score += 0.05;
+  document.getElementById('scoreDisp').textContent = Math.floor(score);
+
+  // draw
+  drawBg();
+  particles.forEach(p=>{
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+  items.forEach(drawItem);
+  drawPlayer(player);
+
+  requestAnimationFrame(loop);
+}
+
+function updateLives(){
+  const hearts=document.querySelectorAll('.heart');
+  hearts.forEach((h,i)=>{ h.classList.toggle('dead', i>=lives); });
+}
+function updateBoostUI(){
+  document.getElementById('boostDisp').textContent = aiBoost<1 ? `×${aiBoost.toFixed(1)} 🤖` : '×1.0';
+}
+
+function startGame(){
+  score=0; lives=3; frame=0; aiBoost=1.0; boostTimer=0;
+  items=[]; particles=[];
+  initPlayer();
+  updateLives();
+  updateBoostUI();
+  document.getElementById('scoreDisp').textContent='0';
+  document.getElementById('overlay').style.display='none';
+  state='play';
+  loop();
+}
+
+function endGame(){
+  state='dead';
+  if(score>bestScore) bestScore=Math.floor(score);
+  const ov=document.getElementById('overlay');
+  ov.innerHTML=`
+    <div class="ov-tag">GAME OVER</div>
+    <div class="ov-title">タスクに<br>やられました</div>
+    <div class="ov-score">${Math.floor(score)}</div>
+    <div class="ov-best">BEST: ${bestScore} ${Math.floor(score)>=bestScore&&bestScore>0?'🎉 NEW!':''}</div>
+    <button onclick="startGame()">もう一度</button>
+    <div class="key-hint">← → Arrow keys / Tap</div>
+  `;
+  ov.style.display='flex';
+}
+
+// ── Controls ──
+const keys={};
+document.addEventListener('keydown',e=>{
+  keys[e.key]=true;
+  if(state==='play'){
+    if(e.key==='ArrowLeft') player.vx=-player.speed;
+    if(e.key==='ArrowRight') player.vx=player.speed;
+  }
+});
+document.addEventListener('keyup',e=>{
+  keys[e.key]=false;
+  if(!keys['ArrowLeft']&&!keys['ArrowRight']) { if(player) player.vx=0; }
+  else if(keys['ArrowLeft']) { if(player) player.vx=-player.speed; }
+  else if(keys['ArrowRight']) { if(player) player.vx=player.speed; }
+});
+
+// touch
+let touchStartX=0;
+canvas.addEventListener('touchstart',e=>{ touchStartX=e.touches[0].clientX; e.preventDefault(); },{passive:false});
+canvas.addEventListener('touchmove',e=>{
+  if(state!=='play') return;
+  const dx=e.touches[0].clientX-touchStartX;
+  player.vx = dx*0.15;
+  e.preventDefault();
+},{passive:false});
+canvas.addEventListener('touchend',()=>{ if(player) player.vx=0; });
+
+// start loop (idle)
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
