@@ -1,9 +1,16 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>100日ゲームチャレンジ | AIが全部作った</title>
+<meta property="og:title" content="AIが全部作った100日ゲームチャレンジ">
+<meta property="og:description" content="戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。">
+<meta property="og:url" content="https://ryo-solo.github.io/100games/">
+<meta property="og:image" content="https://ryo-solo.github.io/100games/og-image.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@ryosuke_solo">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #080812; min-height: 100vh; font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP',monospace; color: #fff; }
@@ -13,9 +20,10 @@ header h1 { font-size: clamp(24px,5vw,40px); font-weight: 900; margin-bottom: 10
 header h1 span { color: #a78bfa; }
 header p { color: #555; font-size: 13px; line-height: 1.8; }
 .header-links { margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.header-links a { padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.header-links a { padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; text-decoration: none; transition: all 0.2s; display: inline-block; }
 .link-note { background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.4); color: #a78bfa; }
 .link-x { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #ccc; }
+.header-links a:hover { opacity: 0.75; transform: translateY(-1px); }
 .counter { display: flex; justify-content: center; gap: 40px; padding: 30px 20px; border-bottom: 1px solid #1e1e3a; }
 .counter-item { text-align: center; }
 .counter-num { font-size: 36px; font-weight: 900; color: #4f46e5; line-height: 1; }
@@ -32,46 +40,51 @@ main { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
 .tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: rgba(79,70,229,0.12); border: 1px solid rgba(79,70,229,0.25); color: #818cf8; }
 .tag.green { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: #34d399; }
 .card-play { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 11px; font-weight: 700; color: #4f46e5; }
-.game-card.soon { opacity: 0.3; pointer-events: none; }
+.game-card.soon { opacity: 0.3; pointer-events: none; cursor: default; }
+.game-card.soon:hover { transform: none; box-shadow: none; }
 footer { text-align: center; padding: 30px; border-top: 1px solid #1e1e3a; color: #333; font-size: 11px; }
 footer span { color: #4f46e5; }
 </style>
 </head>
 <body>
 <header>
-<div class="header-tag">100 DAYS CHALLENGE</div>
-<h1><span>AI</span>が全部作った<br>100日ゲームチャレンジ</h1>
-<p>戦略・コード・デザイン、全工程Claude担当。<br>毎日ちがうゲームを100日間作り続けます。</p>
-<div class="header-links">
-<a class="link-note" href="https://note.com/" target="_blank">📝 noteで記録を読む</a>
-<a class="link-x" href="https://x.com/ryosuke_solo" target="_blank">𝕏 @ryosuke_solo</a>
-</div>
+  <div class="header-tag">100 DAYS CHALLENGE</div>
+  <h1><span>AI</span>が全部作った<br>100日ゲームチャレンジ</h1>
+  <p>戦略・コード・デザイン、全工程Claude担当。<br>毎日ちがうゲームを100日間作り続けます。</p>
+  <div class="header-links">
+    <a class="link-note" href="https://note.com/" target="_blank">📝 noteで記録を読む</a>
+    <a class="link-x" href="https://twitter.com/intent/tweet?text=AIが全部作った100日ゲームチャレンジ%20%23100日ゲームチャレンジ%20%23Claude&url=https%3A%2F%2Fryo-solo.github.io%2F100games%2F" target="_blank">𝕏 シェアする</a>
+  </div>
 </header>
 <div class="counter">
-<div class="counter-item"><div class="counter-num">1</div><div class="counter-label">GAMES MADE</div></div>
-<div class="counter-item"><div class="counter-num">99</div><div class="counter-label">DAYS LEFT</div></div>
-<div class="counter-item"><div class="counter-num">100%</div><div class="counter-label">BY AI</div></div>
+  <div class="counter-item"><div class="counter-num" id="gamesMade">2</div><div class="counter-label">GAMES MADE</div></div>
+  <div class="counter-item"><div class="counter-num" id="daysLeft">97</div><div class="counter-label">DAYS LEFT</div></div>
+  <div class="counter-item"><div class="counter-num">100%</div><div class="counter-label">BY AI</div></div>
 </div>
 <main>
-<div class="section-title">GAMES</div>
-<div class="games-grid">
-<a class="game-card" href="Day001_TaskDodger.html">
-<div class="card-day">DAY 001</div>
-<div class="card-title">TASK DODGER</div>
-<div class="card-desc">降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
-<div class="card-tags"><span class="tag">アクション</span><span class="tag">スマホ対応</span><span class="tag green">AIパワーアップ</span></div>
-<div class="card-play">▶ 今すぐ遊ぶ</div>
-</a>
-<div class="game-card soon"><div class="card-day">DAY 002</div><div class="card-title">Coming Soon</div><div class="card-desc">明日公開予定...</div></div>
-<div class="game-card soon"><div class="card-day">DAY 003</div><div class="card-title">Coming Soon</div><div class="card-desc">もうすぐ...</div></div>
-</div>
-        <div class="game-card">
-          <div class="game-day">DAY 002</div>
-          <h2 class="game-title">SOLO QUEST</h2>
-          <p class="game-desc">ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。</p>
-          <a href="Day002_SoloQuest.html" class="play-btn">▶ 今すぐ遊ぶ</a>
-        </div>
+  <div class="section-title">GAMES</div>
+  <div class="games-grid">
+    <a class="game-card" href="Day001_TaskDodger.html">
+      <div class="card-day">DAY 001</div><div class="card-title">TASK DODGER</div>
+      <div class="card-desc">降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
+      <div class="card-tags"><span class="tag">アクション</span><span class="tag">スマホ対応</span><span class="tag green">AIパワーアップ</span></div>
+      <div class="card-play">▶ 今すぐ遊ぶ</div>
+    </a>
+    <a class="game-card" href="Day002_SoloQuest.html">
+      <div class="card-day">DAY 002</div><div class="card-title">SOLO QUEST</div>
+      <div class="card-desc">ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。</div>
+      <div class="card-tags"><span class="tag">RPG</span><span class="tag">ターン制</span><span class="tag green">HD-2D</span></div>
+      <div class="card-play">▶ 今すぐ遊ぶ</div>
+    </a>
+    <div class="game-card soon">
+      <div class="card-day">DAY 003</div><div class="card-title">Coming Soon</div>
+      <div class="card-desc">もうすぐ...</div>
+    </div>
+  </div>
 </main>
 <footer>Made by <span>AI</span> × りょうすけ — Strategy · Code · Design · All automated</footer>
+<script>
+(function(){var s=new Date('2026-04-13'),t=new Date();t.setHours(0,0,0,0);var d=Math.floor((t-s)/864e5),l=100-d;document.getElementById('daysLeft').textContent=l<0?0:l;document.getElementById('gamesMade').textContent=2;})();
+</script>
 </body>
 </html>
