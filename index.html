@@ -66,7 +66,7 @@
       <a class="game-card" href="Day001_TaskDodger.html">
         <div class="card-day">DAY 001</div>
         <div class="card-title">TASK DODGER</div>
-        <div class="card-desc">降ってくるタスクーメールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
+        <div class="card-desc">降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
         <div class="card-tags"><span class="tag">アクション</span><span class="tag">スマホ対応</span><span class="tag">AIパワーアップ</span></div>
         <div class="card-play">&#9654; 今すぐ遊ぶ</div>
       </a>
@@ -92,8 +92,11 @@
       // GAMES MADE: .soon以外のgame-cardを動的カウント
       var made = document.querySelectorAll('.game-card:not(.soon)').length;
       document.getElementById('gamesMade').textContent = made;
-      // DAYS LEFT: 開始日から動的計算
-      var start = new Date('2026-04-14');
+      // DAYS LEFT: 開始日から動的計算（ローカル時刻で比較 → タイムゾーンずれ防止）
+      // new Date('YYYY-MM-DD') はUTC午前0時 → JSTでは+9h分ずれるのでNG
+      // new Date(year, month-1, day) でローカルタイムmidnightを使う
+      var s = '2026-04-14'.split('-');
+      var start = new Date(+s[0], +s[1]-1, +s[2]);
       var today = new Date(); today.setHours(0,0,0,0);
       var daysPassed = Math.floor((today - start) / 86400000);
       var left = 100 - daysPassed;
