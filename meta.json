@@ -1,0 +1,43 @@
+{
+  "challenge": {
+    "title": "100日ゲームチャレンジ",
+    "subtitle": "戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。",
+    "start_date": "2026-04-13",
+    "total_days": 100,
+    "description": "AIが全部作った100日ゲームチャレンジ"
+  },
+  "social": {
+    "twitter": "@ryosuke_solo",
+    "note": "https://note.com/ryosuke_solo",
+    "og_image": "https://ryo-solo.github.io/100games/og-image.png"
+  },
+  "games": [
+    {
+      "day": 1,
+      "filename": "Day001_TaskDodger.html",
+      "title": "TASK DODGER",
+      "description": "降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。",
+      "tags": ["アクション", "スマホ対応", "AIパワーアップ"],
+      "release_date": "2026-04-14",
+      "status": "published"
+    },
+    {
+      "day": 2,
+      "filename": "Day002_SoloQuest.html",
+      "title": "SOLO QUEST",
+      "description": "ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。",
+      "tags": ["RPG", "ターン制", "HD-2D"],
+      "release_date": "2026-04-15",
+      "status": "published"
+    },
+    {
+      "day": 3,
+      "filename": "Day003_TypingGame.html",
+      "title": "Coming Soon",
+      "description": "もうすぐ...",
+      "tags": [],
+      "release_date": null,
+      "status": "coming_soon"
+    }
+  ]
+}
