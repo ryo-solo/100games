@@ -9,9 +9,9 @@
 html,body{
   width:100%;min-height:100vh;
   background:#0a0608;
-  display:flex;flex-directin:column;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',monospace;
-  overflow:hidden;user-select:none;-webkit-user-select:none;
+  overflow-x:hidden;overflow-y:auto;user-select:none;-webkit-user-select:none;
 }
 .header{text-align:center;margin-bottom:10px}
 .header .day{color:#c9a368;font-size:11px;letter-spacing:.2em;margin-bottom:4px}
@@ -86,7 +86,7 @@ html,body{
   grid-template-columns:repeat(3,34px);grid-template-rows:repeat(3,34px);gap:3px;
   pointer-events:all;z-index:5;
 }
-@media(hover:none){#dpad{display:grid}}
+@media(hover:none){#dpad{display:grid}}@media(max-width:420px){html,body{justify-content:flex-start;padding:16px 0 24px}.header{margin-bottom:8px}.footer{margin-top:8px}}
 .dp{
   background:rgba(201,163,104,.15);border:1px solid #3a2a1a;
   border-radius:5px;color:#c9a368;font-size:14px;
