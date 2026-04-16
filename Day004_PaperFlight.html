@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>PAPER FLIGHT - Day 004</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f5f0e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    touch-action: none;
+  }
+  #gameWrapper {
+    position: relative;
+    width: min(480px, 100vw);
+    height: min(720px, 100vh);
+    overflow: hidden;
+  }
+  #gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* スクリーン */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    pointer-events: none;
+  }
+  .screen.hidden { display: none; }
+
+  /* タイトル画面 */
+  #titleScreen {
+    background: transparent;
+    pointer-events: auto;
+  }
+  .notebook-title {
+    font-size: clamp(32px, 8vw, 48px);
+    font-weight: bold;
+    color: #1a1a2e;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .notebook-title::after {
+    content: '';
+    display: block;
+    height: 3px;
+    background: #1a1a2e;
+    margin-top: 4px;
+    transform: rotate(-0.5deg);
+  }
+  .subtitle {
+    font-size: clamp(10px, 2.5vw, 13px);
+    color: #555;
+    margin: 12px 0 32px;
+    letter-spacing: 2px;
+    font-style: italic;
+  }
+  .day-badge {
+    background: #1a1a2e;
+    color: #f5f0e8;
+    padding: 4px 12px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    transform: rotate(-1deg);
+    display: inline-block;
+  }
+  .start-btn {
+    background: none;
+    border: 2.5px solid #1a1a2e;
+    color: #1a1a2e;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    letter-spacing: 3px;
+    padding: 12px 32px;
+    cursor: pointer;
+    transform: rotate(0.5deg);
+    transition: transform 0.1s;
+    margin-top: 8px;
+  }
+  .start-btn:active { transform: rotate(-0.5deg) scale(0.97); }
+  .instructions {
+    font-size: clamp(9px, 2vw, 11px);
+    color: #666;
+    margin-top: 24px;
+    line-height: 2.2;
+    letter-spacing: 1px;
+  }
+
+  /* HUD */
+  #hud {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 16px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hud-box {
+    background: rgba(245,240,232,0.85);
+    border: 1.5px solid #1a1a2e;
+    padding: 4px 10px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #1a1a2e;
+    transform: rotate(-0.3deg);
+    font-family: 'Courier New', monospace;
+  }
+  .hud-box span { font-weight: bold; font-size: 15px; }
+
+  /* ゲームオーバー */
+  #gameOverScreen {
+    background: rgba(245,240,232,0.92);
+    pointer-events: auto;
+    z-index: 20;
+  }
+  .go-title {
+    font-size: 32px;
+    letter-spacing: 4px;
+    color: #1a1a2e;
+    transform: rotate(-1deg);
+    display: inline-block;
+    border-bottom: 2px solid #1a1a2e;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+  }
+  .go-stats {
+    font-size: 13px;
+    color: #333;
+    line-height: 2.5;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    border: 1.5px dashed #999;
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.5);
+    transform: rotate(0.3deg);
+  }
+</style>
+</head>
+<body>
+<div id="gameWrapper">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- タイトル画面 -->
+  <div id="titleScreen" class="screen">
+    <div class="day-badge">DAY 004</div>
+    <div class="notebook-title">PAPER FLIGHT</div>
+    <div class="subtitle">wind-powered notebook simulator</div>
+    <div class="instructions">
+      スワイプ → 風を起こす<br>
+      翼の下に風を → 上昇<br>
+      機首を上げすぎると → 失速<br>
+      ★を集めると無敵モード
+    </div>
+    <button class="start-btn" id="startBtn">▶ FLY</button>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-box">DIST <span id="distVal">0</span>m</div>
+    <div class="hud-box">★ <span id="starVal">0</span></div>
+    <div class="hud-box">BEST <span id="bestVal">0</span>m</div>
+  </div>
+
+  <!-- ゲームオーバー画面 -->
+  <div id="gameOverScreen" class="screen hidden">
+    <div class="go-title">GROUNDED</div>
+    <div class="go-stats" id="goStats">
+      飛距離: <span id="goDistVal">0</span>m<br>
+      最長記録: <span id="goBestVal">0</span>m<br>
+      収集★: <span id="goStarVal">0</span><br>
+      滞空時間: <span id="goAirtime">0.0</span>s<br>
+      風反応: <span id="goLatency">—</span>ms
+    </div>
+    <button class="start-btn" id="retryBtn">↺ RETRY</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// PAPER FLIGHT — Day 004
+// 物理: 揚力シミュレーション + 風ベクトル操作
+// ビジュアル: ノートの方眼紙 + 手書き風Canvas描画
+// ============================================================
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.getElementById('gameWrapper');
+
+// キャンバスサイズをDPRに合わせてHD化
+let W, H, DPR;
+function resize() {
+  const rect = wrapper.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ============================================================
+// 乱数ユーティリティ
+// ============================================================
+function rnd(a, b) { return a + Math.random() * (b - a); }
+function rndInt(a, b) { return Math.floor(rnd(a, b + 1)); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// ============================================================
+// 「手書き線」描画ユーティリティ
+// すべての直線はこれを通す — ぷるぷる揺れた線になる
+// ============================================================
+function wobblyLine(x1, y1, x2, y2, wobble = 1.2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const steps = Math.max(2, Math.floor(len / 8));
+  ctx.beginPath();
+  ctx.moveTo(x1 + rnd(-wobble, wobble), y1 + rnd(-wobble, wobble));
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const nx = x1 + dx * t + rnd(-wobble, wobble);
+    const ny = y1 + dy * t + rnd(-wobble, wobble);
+    ctx.lineTo(nx, ny);
+  }
+}
+
+function wobblyRect(x, y, w, h, wobble = 1.0) {
+  wobblyLine(x, y, x + w, y, wobble); ctx.stroke();
+  wobblyLine(x + w, y, x + w, y + h, wobble); ctx.stroke();
+  wobblyLine(x + w, y + h, x, y + h, wobble); ctx.stroke();
+  wobblyLine(x, y + h, x, y, wobble); ctx.stroke();
+}
+
+function wobblyCircle(cx, cy, r, wobble = 0.8) {
+  const steps = 32;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    const nr = r + rnd(-wobble, wobble);
+    const x = cx + Math.cos(a) * nr;
+    const y = cy + Math.sin(a) * nr;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+}
+
+// ============================================================
+// 背景：方眼紙ノート
+// ============================================================
+function drawNotebook(scrollX) {
+  // 紙の地
+  ctx.fillStyle = '#f8f4ed';
+  ctx.fillRect(0, 0, W, H);
+
+  // 方眼線（水色）
+  ctx.strokeStyle = 'rgba(140,180,220,0.35)';
+  ctx.lineWidth = 0.7;
+  const grid = 28;
+  const ox = ((scrollX * 0.2) % grid);
+  for (let x = -ox; x < W + grid; x += grid) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H + grid; y += grid) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // 左余白赤線
+  ctx.strokeStyle = 'rgba(220,80,80,0.3)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(40, 0); ctx.lineTo(40, H); ctx.stroke();
+
+  // 少し折れた角（右下）
+  ctx.fillStyle = '#ede8de';
+  ctx.beginPath();
+  ctx.moveTo(W - 20, H); ctx.lineTo(W, H - 20); ctx.lineTo(W, H);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+// ============================================================
+// 風パーディクル
+// ============================================================
+const windParticles = [];
+function spawnWindParticles(x, y, vx, vy, count) {
+  for (let i = 0; i < count; i++) {
+    windParticles.push({
+      x, y,
+      vx: vx * rnd(0.3, 1.0) + rnd(-0.5, 0.5),
+      vy: vy * rnd(0.3, 1.0) + rnd(-0.5, 0.5),
+      life: 1.0,
+      decay: rnd(0.03, 0.06),
+      size: rnd(1.5, 3.5),
+      color: rnd(0, 1) > 0.5 ? '#b0a090' : '#d0c8b0'
+    });
+  }
+}
+
+function updateWindParticles() {
+  for (let i = windParticles.length - 1; i >= 0; i--) {
+    const p = windParticles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vy -= 0.03; // 軽く上へ漂う
+    p.vx *= 0.97;
+    p.life -= p.decay;
+    if (p.life <= 0) windParticles.splice(i, 1);
+  }
+}
+
+function drawWindParticles() {
+  for (const p of windParticles) {
+    ctx.save();
+    ctx.globalAlpha = p.life * 0.55;
+    ctx.fillStyle = p.color;
+    // 鉛筆粉っぽい不規則な形
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, p.size, p.size * 0.5, Math.atan2(p.vy, p.vx), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// 紙飛行機 物理モデル
+// ============================================================
+class PaperPlane {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = W * 0.25;
+    this.y = H * 0.45;
+    this.vx = 2.2;
+    this.vy = 0;
+    this.angle = 0;        // rad: 0=右向き, +=下向き
+    this.omega = 0;        // 角速度
+    this.stallTimer = 0;   // 失速タイマー
+    this.isStalled = false;
+    this.invincible = 0;   // 無敵フレーム
+    this.inkMode = false;  // 万年筆モード
+    this.hit = false;
+  }
+
+  // 揚力計算: L = 0.5 * rho * v^2 * S * CL
+  // 簡略化: rho=1, S=1, CL=f(angle of attack)
+  getLift(aoa) { // aoa: -PI~PI
+    // NACA風の揚力係数
+    // 0〜15度で線形増加、それ以上で失速
+    const aoaDeg = aoa * 180 / Math.PI;
+    if (Math.abs(aoaDeg) < 15) {
+      return 2.5 * Math.sin(aoa * 2);
+    } else {
+      // 失速域
+      return 0.8 * Math.sign(aoa);
+    }
+  }
+
+  update(windForces, dt) {
+    // 速度の大きさ
+    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    // 機体の向き（速度ベクトル方向）
+    const velAngle = Math.atan2(this.vy, this.vx);
+    // 迎え角 (Angle of Attack) = 機体姿勢 - 速度方向
+    const aoa = this.angle - velAngle;
+
+    // 揚力（速度の2乗に比例、揚力方向は速度に垂直）
+    const v2 = speed * speed;
+    const CL = this.getLift(aoa);
+    const liftMag = 0.5 * v2 * CL * 0.018;
+    // 揚力方向: 速度ベクトルを90度回転
+    const liftX = -Math.sin(velAngle) * liftMag;
+    const liftY = Math.cos(velAngle) * liftMag;
+
+    // 抗力（速度方向と逆）
+    const CD = 0.08 + Math.abs(Math.sin(aoa)) * 0.15;
+    const dragMag = 0.5 * v2 * CD * 0.012;
+    const dragX = -Math.cos(velAngle) * dragMag;
+    const dragY = -Math.sin(velAngle) * dragMag;
+
+    // 風の合力
+    let wxSum = 0, wySum = 0;
+    for (const wf of windForces) {
+      const dist = Math.hypot(this.x - wf.x, this.y - wf.y);
+      const falloff = Math.max(0, 1 - dist / wf.radius);
+      wxSum += wf.vx * falloff * 0.4;
+      wySum += wf.vy * falloff * 0.4;
+    }
+
+    // 重力
+    const gravity = 0.06;
+
+    // 加速度統合
+    this.vx += liftX + dragX + wxSum;
+    this.vy += liftY + dragY + wySum + gravity;
+
+    // 機体角度: 速度方向へゆっくり追従
+    const targetAngle = Math.atan2(this.vy, this.vx);
+    let angleDiff = targetAngle - this.angle;
+    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+    this.omega += angleDiff * 0.08;
+    this.omega *= 0.85;
+    this.angle += this.omega;
+
+    // 失速判定
+    const aoaDeg = Math.abs(aoa) * 180 / Math.PI;
+    if (aoaDeg > 20 || speed < 0.8) {
+      this.stallTimer++;
+      if (this.stallTimer > 30) this.isStalled = true;
+    } else {
+      this.stallTimer = Math.max(0, this.stallTimer - 2);
+      if (this.stallTimer === 0) this.isStalled = false;
+    }
+
+    // 速度クランプ
+    const maxSpeed = this.inkMode ? 9 : 6;
+    const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    if (spd > maxSpeed) { this.vx *= maxSpeed / spd; this.vy *= maxSpeed / spd; }
+    // 最低前進速度
+    this.vx = Math.max(this.vx, 0.5);
+
+    // 位置更新
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // 無敵タイマー
+    if (this.invincible > 0) { this.invincible--; if (this.invincible === 0) this.inkMode = false; }
+
+    // 鉛筆粉パーティクル（風を受けた時）
+    const windMag = Math.sqrt(wxSum * wxSum + wySum * wySum);
+    if (windMag > 0.1 && Math.random() < 0.4) {
+      spawnWindParticles(this.x, this.y, wxSum * 3, wySum * 3, 3);
+    }
+  }
+
+  draw(camX) {
+    const sx = this.x - camX;
+    const sy = this.y;
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(this.angle);
+
+    const t = Date.now() * 0.003;
+    const inkMode = this.inkMode;
+
+    if (inkMode) {
+      // 万年筆モード：深い青インク
+      ctx.strokeStyle = '#1a237e';
+      ctx.fillStyle = 'rgba(26,35,126,0.15)';
+      ctx.lineWidth = 2.0;
+    } else if (this.isStalled) {
+      // 失速中：赤く
+      ctx.strokeStyle = '#c62828';
+      ctx.fillStyle = 'rgba(198,40,40,0.1)';
+      ctx.lineWidth = 1.8;
+    } else {
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.fillStyle = 'rgba(245,240,232,0.6)';
+      ctx.lineWidth = 1.6;
+    }
+
+    const scale = 1.0;
+    // 機体（紙飛行機 シルエット）
+    const w = 28 * scale, h = 12 * scale;
+
+    // 機体ボディ
+    ctx.beginPath();
+    // 機首
+    const nose = w * 0.5 + rnd(-0.4, 0.4);
+    ctx.moveTo(nose, 0);
+    // 上翼
+    ctx.lineTo(-w * 0.3 + rnd(-0.3,0.3), -h * 0.55 + rnd(-0.3,0.3));
+    ctx.lineTo(-w * 0.5 + rnd(-0.3,0.3), -h * 0.15 + rnd(-0.3,0.3));
+    // 胴体下
+    ctx.lineTo(-w * 0.4 + rnd(-0.3,0.3), h * 0.2 + rnd(-0.3,0.3));
+    // 下翼
+    ctx.lineTo(-w * 0.2 + rnd(-0.3,0.3), h * 0.6 + rnd(-0.3,0.3));
+    ctx.lineTo(w * 0.1 + rnd(-0.3,0.3), h * 0.15 + rnd(-0.3,0.3));
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // 折り目（手書き風）
+    ctx.globalAlpha = 0.4;
+    ctx.lineWidth = 0.8;
+    wobblyLine(-w * 0.5, 0, w * 0.4, 0, 0.5); ctx.stroke();
+    wobblyLine(nose, 0, -w * 0.35, -h * 0.3, 0.4); ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // インクモード：軌跡の光
+    if (inkMode) {
+      ctx.fillStyle = 'rgba(63,81,181,0.3)';
+      ctx.beginPath();
+      ctx.ellipse(-w * 0.2, 0, w * 0.6, h * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// 障害物クラス
+// ============================================================
+class Obstacle {
+  constructor(x, type) {
+    this.x = x;
+    this.type = type; // 'eraser','coffee','cross'
+    this.alive = true;
+    this.wobbleSeed = Math.random() * 1000;
+
+    if (type === 'eraser') {
+      this.y = rnd(H * 0.15, H * 0.75);
+      this.w = rnd(50, 80); this.h = rnd(22, 32);
+      this.vy = rnd(-0.5, 0.5); this.vFall = rnd(0.3, 0.8);
+    } else if (type === 'coffee') {
+      this.y = rnd(H * 0.2, H * 0.7);
+      this.r = rnd(30, 50);
+      this.opacity = rnd(0.3, 0.55);
+    } else if (type === 'cross') {
+      this.y = rnd(H * 0.15, H * 0.75);
+      this.size = rnd(28, 45);
+      this.angle = rnd(-0.2, 0.2);
+    }
+  }
+
+  update() {
+    if (this.type === 'eraser') {
+      this.y += this.vy;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+    }
+  }
+
+  getBounds(camX) {
+    const sx = this.x - camX;
+    if (this.type === 'eraser') return { x: sx - this.w/2, y: this.y - this.h/2, w: this.w, h: this.h };
+    if (this.type === 'coffee') return { x: sx - this.r, y: this.y - this.r, w: this.r*2, h: this.r*2 };
+    if (this.type === 'cross') return { x: sx - this.size, y: this.y - this.size, w: this.size*2, h: this.size*2 };
+    return null;
+  }
+
+  draw(camX) {
+    const sx = this.x - camX;
+    if (sx < -100 || sx > W + 100) return;
+    const ws = this.wobbleSeed;
+
+    ctx.save();
+    ctx.translate(sx, this.y);
+
+    if (this.type === 'eraser') {
+      // 消しゴム
+      const w = this.w, h = this.h;
+      ctx.rotate(rnd(-0.06, 0.06));
+      ctx.strokeStyle = '#555';
+      ctx.fillStyle = '#f5c8b8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-w/2, -h/2, w, h, 4);
+      ctx.fill(); ctx.stroke();
+      // 消しゴムの帯
+      ctx.fillStyle = '#b0a0c0';
+      ctx.beginPath();
+      ctx.roundRect(-w/2, -h/2, w * 0.3, h, 4);
+      ctx.fill();
+      // ブランド文字風
+      ctx.fillStyle = '#333';
+      ctx.font = `${Math.floor(h * 0.55)}px Courier New`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('MONO', w * 0.15, 0);
+      // 消しゴムのカス（粒）
+      ctx.globalAlpha = 0.6;
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = '#ccc';
+        ctx.beginPath();
+        ctx.ellipse(
+          rnd(-w * 0.7, w * 0.7), rnd(h * 0.5, h * 0.9),
+          rnd(1.5, 3.5), rnd(1, 2.5), rnd(0, Math.PI), 0, Math.PI * 2
+        );
+        ctx.fill();
+      }
+
+    } else if (this.type === 'coffee') {
+      // コーヒーのシミ
+      ctx.globalAlpha = this.opacity;
+      ctx.fillStyle = '#8B5E3C';
+      wobblyCircle(0, 0, this.r, 3);
+      ctx.fill();
+      // 内側の薄いリング
+      ctx.fillStyle = '#a07850';
+      ctx.globalAlpha = this.opacity * 0.5;
+      wobblyCircle(0, 0, this.r * 0.7, 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+    } else if (this.type === 'cross') {
+      // 赤ペンの「×」
+      ctx.rotate(this.angle);
+      ctx.strokeStyle = '#c62828';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      const s = this.size;
+      wobblyLine(-s, -s, s, s, 1.5); ctx.stroke();
+      wobblyLine(s, -s, -s, s, 1.5); ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  // 衝突判定（簡易AABB）
+  checkHit(plane, camX) {
+    if (!this.alive) return false;
+    if (this.type === 'coffee') return false; // コーヒーは視界遮断のみ
+    const b = this.getBounds(camX);
+    if (!b) return false;
+    const px = plane.x - camX, py = plane.y;
+    const hw = 14, hh = 7;
+    return px + hw > b.x && px - hw < b.x + b.w &&
+           py + hh > b.y && py - hh < b.y + b.h;
+  }
+}
+
+// ============================================================
+// 収集アイテム（★ / 電球）
+// ============================================================
+class CollectItem {
+  constructor(x) {
+    this.x = x;
+    this.y = rnd(H * 0.15, H * 0.75);
+    this.type = Math.random() < 0.7 ? 'star' : 'bulb';
+    this.alive = true;
+    this.bobT = Math.random() * Math.PI * 2;
+  }
+  update() { this.bobT += 0.05; }
+  draw(camX) {
+    const sx = this.x - camX;
+    if (sx < -60 || sx > W + 60) return;
+    if (!this.alive) return;
+    const sy = this.y + Math.sin(this.bobT) * 3;
+
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.8;
+
+    if (this.type === 'star') {
+      drawHandwrittenStar(0, 0, 14, '#ffd600');
+    } else {
+      drawHandwrittenBulb(0, 0, 13);
+    }
+    ctx.restore();
+  }
+  checkHit(plane, camX) {
+    if (!this.alive) return false;
+    const px = plane.x - camX, py = plane.y;
+    const sx = this.x - camX;
+    return Math.hypot(px - sx, py - (this.y)) < 22;
+  }
+}
+
+function drawHandwrittenStar(cx, cy, r, color) {
+  ctx.fillStyle = color;
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1.5;
+  const points = 5;
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const a = (i * Math.PI / points) - Math.PI / 2;
+    const rad = (i % 2 === 0) ? r : r * 0.4;
+    const x = cx + Math.cos(a) * (rad + rnd(-0.8, 0.8));
+    const y = cy + Math.sin(a) * (rad + rnd(-0.8, 0.8));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+
+function drawHandwrittenBulb(cx, cy, r) {
+  // 電球の丸
+  ctx.strokeStyle = '#f9a825';
+  ctx.fillStyle = 'rgba(255,236,100,0.5)';
+  ctx.lineWidth = 1.8;
+  wobblyCircle(cx, cy, r, 1.5); ctx.fill(); ctx.stroke();
+  // フィラメント
+  ctx.strokeStyle = '#e65100';
+  ctx.lineWidth = 1.2;
+  wobblyLine(cx, cy + r, cx, cy + r + 8, 0.5); ctx.stroke();
+  wobblyLine(cx - 4, cy + r + 8, cx + 4, cy + r + 8, 0.3); ctx.stroke();
+}
+
+// ============================================================
+// 雲（手書き風）
+// ============================================================
+class Cloud {
+  constructor(x) {
+    this.x = x;
+    this.y = rnd(H * 0.05, H * 0.5);
+    this.scale = rnd(0.6, 1.4);
+    this.seed = Math.random() * 100;
+    this.speed = rnd(0.2, 0.5);
+  }
+  draw(camX) {
+    const sx = this.x - camX * this.speed;
+    if (sx < -120 || sx > W + 120) return;
+    ctx.save();
+    ctx.translate(sx, this.y);
+    ctx.scale(this.scale, this.scale);
+    ctx.strokeStyle = 'rgba(150,180,220,0.5)';
+    ctx.fillStyle = 'rgba(230,240,255,0.4)';
+    ctx.lineWidth = 1.5;
+    const puffs = [{x:0,y:0,r:22},{x:20,y:-8,r:18},{x:-20,y:-6,r:16},{x:-10,y:10,r:14},{x:12,y:10,r:13}];
+    for (const p of puffs) {
+      wobblyCircle(p.x, p.y, p.r, 2);
+      ctx.fill(); ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// ゲーム状態
+// ============================================================
+let state = 'title'; // 'title','playing','gameover'
+let plane, camX, scrollDist, spawnX;
+let obstacles = [], items = [], clouds = [];
+let windForces = []; // {x,y,vx,vy,radius,life}
+let score, bestScore = 0, starCount, airtimeFrames;
+let lastWindLatency = null;
+
+// タッチ/マウス入力
+let touchStart = null, lastTouchTime = 0;
+
+// ============================================================
+// 初期化
+// ============================================================
+function initGame() {
+  plane = new PaperPlane();
+  camX = 0;
+  scrollDist = 0;
+  spawnX = W + 300;
+  obstacles = []; items = []; windForces = [];
+  starCount = 0; airtimeFrames = 0; score = 0;
+  windParticles.length = 0;
+
+  // 初期雲
+  clouds = [];
+  for (let i = 0; i < 8; i++) clouds.push(new Cloud(rnd(0, W * 2)));
+
+  // HUD表示
+  document.getElementById('hud').classList.remove('hidden');
+  updateHUD();
+}
+
+function updateHUD() {
+  document.getElementById('distVal').textContent = Math.floor(scrollDist / 10);
+  document.getElementById('starVal').textContent = starCount;
+  document.getElementById('bestVal').textContent = Math.floor(bestScore / 10);
+}
+
+// ============================================================
+// 風力の生成（スワイプ/タッチ）
+// ============================================================
+function addWind(x, y, vx, vy) {
+  const startTime = performance.now();
+  const speed = Math.sqrt(vx * vx + vy * vy);
+  windForces.push({
+    x: x + camX,  // ワールド座標
+    y,
+    vx: vx * 2.5,
+    vy: vy * 2.5,
+    radius: 90 + speed * 8,
+    life: 1.0,
+    decay: 0.04
+  });
+  // 反応速度の計測（初回のみ）
+  if (lastWindLatency === null) {
+    lastWindLatency = performance.now() - startTime;
+  }
+  // パーティクル
+  spawnWindParticles(x, y, vx * 3, vy * 3, 8);
+}
+
+// ============================================================
+// 障害物スポーン
+// ============================================================
+function spawnObjects() {
+  if (spawnX - camX > W + 400) return;
+  const types = ['eraser','eraser','coffee','cross','cross'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  obstacles.push(new Obstacle(spawnX, type));
+
+  if (Math.random() < 0.6) {
+    items.push(new CollectItem(spawnX + rnd(80, 200)));
+  }
+  if (Math.random() < 0.4) {
+    clouds.push(new Cloud(spawnX + rnd(0, 300)));
+  }
+  spawnX += rnd(220, 400);
+}
+
+// ============================================================
+// 衝突・アイテム収集
+// ============================================================
+function checkCollisions() {
+  if (plane.invincible > 0) return;
+
+  // 障害物衝突
+  for (const obs of obstacles) {
+    if (obs.checkHit(plane, camX)) {
+      plane.hit = true;
+      return;
+    }
+  }
+
+  // 画面外（上下）
+  if (plane.y < -20 || plane.y > H + 20) {
+    plane.hit = true;
+  }
+}
+
+function checkItemCollection() {
+  for (const item of items) {
+    if (!item.alive) continue;
+    if (item.checkHit(plane, camX)) {
+      item.alive = false;
+      starCount++;
+      if (starCount % 3 === 0) {
+        // 3個で無敵モード
+        plane.invincible = 180; // 3秒
+        plane.inkMode = true;
+        spawnWindParticles(plane.x - camX, plane.y, -5, 0, 20);
+      }
+      updateHUD();
+    }
+  }
+}
+
+// ============================================================
+// ゲームオーバー
+// ============================================================
+function triggerGameOver() {
+  state = 'gameover';
+  const dist = Math.floor(scrollDist / 10);
+  if (scrollDist > bestScore) bestScore = scrollDist;
+  const airtime = (airtimeFrames / 60).toFixed(1);
+
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('goDistVal').textContent = dist;
+  document.getElementById('goBestVal').textContent = Math.floor(bestScore / 10);
+  document.getElementById('goStarVal').textContent = starCount;
+  document.getElementById('goAirtime').textContent = airtime;
+  document.getElementById('goLatency').textContent =
+    lastWindLatency !== null ? lastWindLatency.toFixed(2) : '—';
+
+  document.getElementById('gameOverScreen').classList.remove('hidden');
+}
+
+// ============================================================
+// メインループ
+// ============================================================
+let lastTime = 0;
+function gameLoop(ts) {
+  const dt = Math.min((ts - lastTime) / 16.67, 3);
+  lastTime = ts;
+
+  // 背景
+  drawNotebook(camX);
+
+  // 雲
+  for (const c of clouds) c.draw(camX);
+
+  if (state === 'playing') {
+    // 風力の更新・消衰
+    for (let i = windForces.length - 1; i >= 0; i--) {
+      const wf = windForces[i];
+      wf.life -= wf.decay;
+      if (wf.life <= 0) windForces.splice(i, 1);
+    }
+
+    // 風ベクトル表示（デバッグ用の矢印は省略 → 粒子で代替）
+    drawWindArrows();
+
+    // 機体更新
+    plane.update(windForces.map(wf => ({
+      x: wf.x - camX, y: wf.y, vx: wf.vx * wf.life, vy: wf.vy * wf.life, radius: wf.radius
+    })), dt);
+
+    // スポーン
+    spawnObjects();
+
+    // 障害物更新
+    for (const obs of obstacles) obs.update();
+    for (const item of items) item.update();
+
+    // 衝突
+    checkCollisions();
+    checkItemCollection();
+
+    // カメラ追従
+    const targetCamX = plane.x - W * 0.3;
+    camX += (targetCamX - camX) * 0.08;
+    scrollDist = Math.max(scrollDist, camX);
+
+    airtimeFrames++;
+    updateHUD();
+
+    // オブジェクトの描画
+    for (const obs of obstacles) obs.draw(camX);
+    for (const item of items) item.draw(camX);
+
+    // 不可視オブジェクトの整理
+    obstacles = obstacles.filter(o => o.x - camX > -200);
+    items = items.filter(i => i.x - camX > -200);
+    clouds = clouds.filter(c => c.x - camX * c.speed > -200);
+
+    // パーティクル
+    updateWindParticles();
+    drawWindParticles();
+
+    // 機体描画
+    plane.draw(camX);
+
+    // 失速インジケーター
+    if (plane.isStalled) drawStallWarning();
+
+    // コーヒーシミのフィルター
+    drawCoffeeFilter();
+
+    if (plane.hit) triggerGameOver();
+  }
+
+  // 地面（下端）
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 2;
+  wobblyLine(0, H - 8, W, H - 8, 1.5); ctx.stroke();
+
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================================
+// 風矢印の可視化（方向ヒント）
+// ============================================================
+function drawWindArrows() {
+  for (const wf of windForces) {
+    const sx = wf.x - camX, sy = wf.y;
+    if (sx < -50 || sx > W + 50) continue;
+    const alpha = wf.life * 0.25;
+    const speed = Math.sqrt(wf.vx * wf.vx + wf.vy * wf.vy);
+    const len = Math.min(40, speed * 4);
+    const nx = wf.vx / speed, ny = wf.vy / speed;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#4a90d9';
+    ctx.lineWidth = 1.2;
+    // 矢印の線（手書き風）
+    wobblyLine(sx - nx * len * 0.5, sy - ny * len * 0.5,
+               sx + nx * len * 0.5, sy + ny * len * 0.5, 1.0);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// 失速警告
+// ============================================================
+function drawStallWarning() {
+  ctx.save();
+  ctx.strokeStyle = '#c62828';
+  ctx.lineWidth = 2;
+  ctx.font = 'bold 14px Courier New';
+  ctx.fillStyle = '#c62828';
+  ctx.globalAlpha = 0.7 + 0.3 * Math.sin(Date.now() * 0.01);
+  ctx.textAlign = 'center';
+  ctx.fillText('⚠ STALL', W / 2, 60);
+  ctx.restore();
+}
+
+// ============================================================
+// コーヒーシミ視界フィルター（画面中央付近のシミ描画）
+// ============================================================
+function drawCoffeeFilter() {
+  for (const obs of obstacles) {
+    if (obs.type !== 'coffee') continue;
+    const sx = obs.x - camX;
+    if (Math.abs(sx - W * 0.3) > 200) continue;
+    // 画面に重なるシミをフィルターとして描画
+    ctx.save();
+    ctx.globalAlpha = obs.opacity * 0.18;
+    ctx.fillStyle = '#8B5E3C';
+    wobblyCircle(sx, obs.y, obs.r * 1.2, 4);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// 入力ハンドリング（スワイプ → 風）
+// ============================================================
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state !== 'playing') return;
+  const p = getPos(e);
+  touchStart = { x: p.x, y: p.y, t: Date.now() };
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if (state !== 'playing' || !touchStart) return;
+  const p = getPos(e);
+  const dt = (Date.now() - touchStart.t) / 1000;
+  const dx = p.x - touchStart.x;
+  const dy = p.y - touchStart.y;
+  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 1000 + 50);
+  if (Math.sqrt(dx*dx + dy*dy) > 8) {
+    addWind(touchStart.x, touchStart.y, dx * speed * 0.12, dy * speed * 0.12);
+  }
+  touchStart = null;
+}, { passive: false });
+
+// マウスサポート（デスクトップ）
+let mouseDown = null;
+canvas.addEventListener('mousedown', e => {
+  if (state !== 'playing') return;
+  mouseDown = { x: e.offsetX, y: e.offsetY, t: Date.now() };
+});
+canvas.addEventListener('mouseup', e => {
+  if (state !== 'playing' || !mouseDown) return;
+  const dx = e.offsetX - mouseDown.x;
+  const dy = e.offsetY - mouseDown.y;
+  const dt = (Date.now() - mouseDown.t) / 1000 + 0.05;
+  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 1000 + 50);
+  if (Math.sqrt(dx*dx+dy*dy) > 8) {
+    addWind(mouseDown.x, mouseDown.y, dx * speed * 0.12, dy * speed * 0.12);
+  }
+  mouseDown = null;
+});
+
+// ============================================================
+// UI ボタン
+// ============================================================
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('titleScreen').classList.add('hidden');
+  initGame();
+  state = 'playing';
+  lastWindLatency = null;
+});
+document.getElementById('retryBtn').addEventListener('click', () => {
+  document.getElementById('gameOverScreen').classList.add('hidden');
+  initGame();
+  state = 'playing';
+  lastWindLatency = null;
+});
+
+// ============================================================
+// 起動
+// ============================================================
+requestAnimationFrame(ts => { lastTime = ts; requestAnimationFrame(gameLoop); });
+</script>
+</body>
+</html>
