@@ -284,11 +284,11 @@
   <div id="screen-title" class="screen">
     <div class="title-day">DAY 003</div>
     <div class="title-logo">GRAVITY<br>POP</div>
-    <div class="title-sub">ããã«ãå°ããé ã«ã¿ãããã¦å²ãï¼</div>
+    <div class="title-sub">バブルを小さい順にタップして割れ！</div>
     <div class="rules-box">
-      <div class="rule-item"><span class="rule-icon">&#9312;</span><span>æ°å­ã®å°ããããã«ããé ã«ã¿ãã</span></div>
-      <div class="rule-item"><span class="rule-icon">&#128293;</span><span>é£ç¶ã§å²ãã¨ã³ã³ãçºç&#xFF01;ã¹ã³ã¢åå¢</span></div>
-      <div class="rule-item"><span class="rule-icon">&#9200;</span><span>å¶éæé30ç§ãä½åå²ããã&#65311;</span></div>
+      <div class="rule-item"><span class="rule-icon">&#9312;</span><span>数字の小さいバブルから順にタップ</span></div>
+      <div class="rule-item"><span class="rule-icon">&#128293;</span><span>連続で割るとコンボ発生&#xFF01;スコア倍増</span></div>
+      <div class="rule-item"><span class="rule-icon">&#9200;</span><span>制限時間30秒。何個割るか&#65311;</span></div>
     </div>
     <button class="btn-start" id="btn-start">PLAY &#9654;</button>
   </div>
@@ -333,13 +333,13 @@
         <div class="stat-label">MAX COMBO</div>
       </div>
     </div>
-    <div class="result-rank" id="result-rank">ã©ã³ã¯: <span id="rank-text">-</span></div>
+    <div class="result-rank" id="result-rank">ランク: <span id="rank-text">-</span></div>
     <button class="btn-retry" id="btn-retry">RETRY &#9654;</button>
     <button class="btn-share-x" id="btn-share-x">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      ã¹ã³ã¢ãã·ã§ã¢
+      スコアをシェア
     </button>
-    <button class="btn-home" id="btn-home">&#8592; ãããã«æ»ã</button>
+    <button class="btn-home" id="btn-home">&#8592; トップに戻る</button>
   </div>
 </div>
 
@@ -673,7 +673,7 @@
       const pts = 10 * multiplier;
       state.score += pts;
 
-      spawnParticles hit.x, hit.y, hit.color1);
+      spawnParticles(hit.x, hit.y, hit.color1);
       playPop(500 + state.combo * 80, 0.4);
       vibrate(20);
       showCombo(state.combo);
@@ -822,7 +822,7 @@
     const combo   = state.maxCombo;
     const rankEl  = document.getElementById('rank-text');
     const rankStr = rankEl ? rankEl.textContent.replace(/[^\u0000-\u007E\u3000-\u9FFF\uFF00-\uFFEF]/g,'').trim() : '';
-    const text = `ð«§ GRAVITY POP ${score}ç¹éæï¼\nããã«${popped}åã»æå¤§${combo}ã³ã³ã${rankStr ? ' ï¼ ' + rankStr : ''}\n#100gamesChallenge #100æ¥ã²ã¼ã ãã£ã¬ã³ã¸\nð https://ryo-solo.github.io/100games/Day003_GravityPop.html`;
+    const text = `🫧 GRAVITY POP ${score}点達成！\nバブル${popped}個・最大${combo}コンボ${rankStr ? ' ／ ' + rankStr : ''}\n#100gamesChallenge #100日ゲーだチャレンジ\n👉 https://ryo-solo.github.io/100games/Day003_GravityPop.html`;
     window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank', 'noopener');
   });
 
