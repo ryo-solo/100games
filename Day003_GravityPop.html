@@ -446,11 +446,23 @@
 
   function createBubble(number) {
     const R = randomBetween(30, 50);
-    const x = randomBetween(R + 10, canvas.width  - R - 10);
-    const y = randomBetween(R + 90, canvas.height - R - 60);
     const colorSet = BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)];
     const speed = randomBetween(0.4, 1.2);
     const angle = Math.random() * Math.PI * 2;
+
+    // 重なり回避: 最大20回試行して既存バブルと距離を確保する
+    let x, y;
+    const margin = 10;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      x = randomBetween(R + margin, canvas.width  - R - margin);
+      y = randomBetween(R + 90,    canvas.height - R - 60);
+      const overlapping = state.bubbles.some(b => {
+        const dx = x - b.x, dy = y - b.y;
+        return Math.sqrt(dx * dx + dy * dy) < R + b.R + 8;
+      });
+      if (!overlapping) break;
+    }
+
     return {
       id: state.bubbleIdCounter++,
       number,
@@ -534,7 +546,10 @@
       // Number
       ctx.globalAlpha = b.popping ? (1 - b.popProgress) : 1;
       const isNext = (b.number === state.nextTarget);
-      ctx.font = `900 ${Math.round(b.R * 0.7)}px 'Hiragino Kaku Gothic ProN', sans-serif`;
+      // 2桁以上の数字はフォントを縮小してバブルからはみ出さないようにする
+      const digits = String(b.number).length;
+      const fontSize = Math.round(b.R * (digits >= 2 ? 0.5 : 0.7));
+      ctx.font = `900 ${fontSize}px 'Hiragino Kaku Gothic ProN', sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -725,6 +740,12 @@
 
   // ===== START GAME =====
   function startGame() {
+    // AudioContextをPLAY時点で事前生成・resume（iOSの初音遅延を防ぐ）
+    try {
+      const ac = getAudioCtx();
+      if (ac.state === 'suspended') ac.resume();
+    } catch(e) {}
+
     // Reset state
     state.running     = false;
     state.score       = 0;
