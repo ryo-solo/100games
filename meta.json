@@ -1,14 +1,15 @@
 {
   "challenge": {
     "title": "100日ゲームチャレンジ",
-    "subtitle": "毎日1本、AIと一緒にゲームを作り続ける100日間の記録。",
-    "start_date": "2026-04-14",
-    "total_days": 100
+    "subtitle": "戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。",
+    "start_date": "2026-04-13",
+    "total_days": 100,
+    "description": "AIが全部作った100日ゲームチャレンジ"
   },
   "social": {
     "twitter": "@ryosuke_solo",
-    "note": "https://note.com/ryosuke_solo_26",
-    "og_image": "https://ryo-solo.github.io/100games/og.png"
+    "note": "https://note.com/ryosuke_solo",
+    "og_image": "https://ryo-solo.github.io/100games/og-image.png"
   },
   "games": [
     {
@@ -16,7 +17,11 @@
       "filename": "Day001_TaskDodger.html",
       "title": "TASK DODGER",
       "description": "降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。",
-      "tags": ["アクション", "スマホ対応", "AIパワーアップ"],
+      "tags": [
+        "アクション",
+        "スマホ対応",
+        "AIパワーアップ"
+      ],
       "release_date": "2026-04-14",
       "status": "published"
     },
@@ -25,16 +30,39 @@
       "filename": "Day002_SoloQuest.html",
       "title": "SOLO QUEST",
       "description": "ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。",
-      "tags": ["RPG", "ターン制", "HD-2D"],
+      "tags": [
+        "RPG",
+        "ターン制",
+        "HD-2D"
+      ],
       "release_date": "2026-04-15",
       "status": "published"
     },
     {
       "day": 3,
-      "filename": "Day003_GravityPop.html",
-      "title": "GRAVITY POP",
-      "description": "数字の小さいバブルから順にタップして割れ！コンボで得点爆増。30秒の重力パズル。",
-      "tags": ["パズル", "スマホ対応", "コンボ"],
+      "filename": "Day003_TypingGame.html",
+      "title": "TYPE STRIKE",
+      "description": "スピードタイピングゲーム。単語を素早くタイプしてコンボを繋げろ。BOSS WORDは3倍スコア。AIが設計した難易度システム搭載。",
+      "tags": [
+        "タイピング",
+        "スピード",
+        "コンボ",
+        "スマホ対応"
+      ],
+      "release_date": "2026-04-16",
+      "status": "published"
+    },
+    {
+      "day": 4,
+      "filename": "Day004_PaperFlight.html",
+      "title": "PAPER FLIGHT",
+      "description": "ノートの落書きが飛ぶ！スワイプで「風」を操り紙飛行機を空へ。揚力・失速の空気力学シミュ搭載。手書き鉛筆タッチの世界観。",
+      "tags": [
+        "物理シミュレーション",
+        "スマホ対応",
+        "手書きビジュアル",
+        "風操作"
+      ],
       "release_date": "2026-04-16",
       "status": "published"
     }
