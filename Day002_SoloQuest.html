@@ -9,7 +9,7 @@
 html,body{
   width:100%;min-height:100vh;
   background:#0a0608;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  display:flex;flex-directin:column;align-items:center;justify-content:center;
   font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',monospace;
   overflow:hidden;user-select:none;-webkit-user-select:none;
 }
@@ -517,7 +517,7 @@ function shake(d){shakeDur=d;}
 function shareX(){
   const text=`Day002 SOLO QUEST — スコア${score}pts! B${floorNum}Fまで到達！\nターン制ダンジョン、あなたは何階まで行ける？\n#100日ゲームチャレンジ #solodev`;
   const url='https://ryo-solo.github.io/100games/Day002_SoloQuest.html';
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url),'_blank');
+  window.open('https://x.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url),'_blank');
 }
 
 // ============================================================
@@ -579,8 +579,8 @@ document.addEventListener('keydown',e=>{
 });
 
 let tx0=0,ty0=0;
-document.addEventListener('touchstart',e=>{tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;e.preventDefault();},{passive:false});
-document.addEventListener('touchend',e=>{
+document.addEventListener('touchstart',e=>{if(e.target.closest('button')){return;}tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;e.preventDefault();},{passive:false});
+document.addEventListener('touchend',e=>{if(e.target.closest('button')){return;}
   if(state==='menu'){startGame();return;}
   const dx=e.changedTouches[0].clientX-tx0, dy=e.changedTouches[0].clientY-ty0;
   if(Math.abs(dx)<8&&Math.abs(dy)<8) return;

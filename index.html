@@ -99,7 +99,7 @@
     <h1><span>AI</span>が全部作った<br>100日ゲームチャレンジ</h1>
     <p>戦略・コード・デザイン、全工程Claude担当。<br>毎日ちがうゲームを100日間作り続けます。</p>
     <div class="header-links">
-      <a class="link-note" href="https://note.com/ryosuke_solo" target="_blank">📝 noteで記録を読む</a>
+      <a class="link-note" href="https://note.com/ryosuke_solo_26" target="_blank">📝 noteで記録を読む</a>
       <a class="link-x" href="https://x.com/intent/tweet?text=AIが全部作った100日ゲームチャレンジ%20%23100日ゲームチャレンジ%20%23Claude&url=https%3A%2F%2Fryo-solo.github.io%2F100games%2F" target="_blank">𝕏 シェアする</a>
     </div>
   </header>
@@ -131,15 +131,23 @@
   </main>
   <footer>Made by <span>AI</span> × りょうすけ — Strategy · Code · Design · All automated</footer>
   <script>
+    // ── 定数: 今後ここだけ変更すれば全体に反映 ──
+    const NOTE_URL = 'https://note.com/ryosuke_solo_26';
+    const CHALLENGE_START = '2026-04-13';
+    const CHALLENGE_DAYS = 100;
+
+    // note リンクを定数から注入（HTMLに直書きしても同じ値）
+    document.querySelector('.link-note').href = NOTE_URL;
+
     (function(){
       // GAMES MADE: .soon以外のgame-cardを動的カウント
       var made = document.querySelectorAll('.game-card:not(.soon)').length;
       document.getElementById('gamesMade').textContent = made;
       // DAYS LEFT: 開始日から動的計算
-      var start = new Date('2026-04-13');
+      var start = new Date(CHALLENGE_START);
       var today = new Date(); today.setHours(0,0,0,0);
       var daysPassed = Math.floor((today - start) / 86400000);
-      var left = 100 - daysPassed;
+      var left = CHALLENGE_DAYS - daysPassed;
       document.getElementById('daysLeft').textContent = left < 0 ? 0 : left;
     })();
   </script>
