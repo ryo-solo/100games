@@ -1,56 +1,29 @@
-{
-  "challenge": {
-    "title": "100æ¥ã²ã¼ã ãã£ã¬ã³ã¸",
-    "subtitle": "æ¦ç¥ã»ã³ã¼ãã»ãã¶ã¤ã³ãå¨å·¥ç¨Claudeæå½ãæ¯æ¥ã¡ãã²ã¼ã ã100æ¥éä½ãç¶ãã¾ãã",
-    "start_date": "2026-04-13",
-    "total_days": 100,
-    "description": "AIãå¨é¨ä½ã£ã100æ¥ã²ã¼ã ãã£ã¬ã³ã¸"
+[
+  {
+    "day": 1,
+    "filename": "Day001_TaskDodger.html",
+    "title": "TASK DODGER",
+    "description": "降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。",
+    "tags": ["アクション", "スマホ対応", "AIパワーアップ"],
+    "release_date": "2026-04-13",
+    "status": "published"
   },
-  "social": {
-    "twitter": "@ryosuke_solo",
-    "note": "https://note.com/ryosuke_solo",
-    "og_image": "https://ryo-solo.github.io/100games/og-image.png"
+  {
+    "day": 2,
+    "filename": "Day002_SoloQuest.html",
+    "title": "SOLO QUEST",
+    "description": "ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。",
+    "tags": ["RPG", "ターン制", "HD-2D"],
+    "release_date": "2026-04-14",
+    "status": "published"
   },
-  "games": [
-    {
-      "day": 1,
-      "filename": "Day001_TaskDodger.html",
-      "title": "TASK DODGER",
-      "description": "éã£ã¦ããã¿ã¹ã¯ã¼ã¡ã¼ã«ãé¿ããªãããAIãã¯ã¼ã¢ãããã²ããï¼è½ã¡çãã¦ä»äºããã½ã­ãã¬ãã¼ãå®ãã",
-      "tags": [
-        "ã¢ã¯ã·ã§ã³",
-        "ã¹ããå¯¾å¿",
-        "AIãã¯ã¼ã¢ãã"
-      ],
-      "release_date": "2026-04-14",
-      "status": "published"
-    },
-    {
-      "day": 2,
-      "filename": "Day002_SoloQuest.html",
-      "title": "SOLO QUEST",
-      "description": "ã¿ã¼ã³å¶ãã³ã¸ã§ã³RPGãB5Fãç®æããAIããããçµµã¾ã§çæããæ¬æ ¼ã¹ãã©ã¤ãå®è£ã",
-      "tags": [
-        "RPG",
-        "ã¿ã¼ã³å¶",
-        "HD-2D"
-      ],
-      "release_date": "2026-04-15",
-      "status": "published"
-    },
-    {
-      "day": 3,
-      "filename": "Day003_TypingGame.html",
-      "title": "TYPE STRIKE",
-      "description": "ã¹ãã¼ãã¿ã¤ãã³ã°ã²ã¼ã ãåèªãç´ æ©ãã¿ã¤ããã¦ã³ã³ããç¹ãããBOSS WORDã¯3åã¹ã³ã¢ãAIãè¨­è¨ããé£æåº¦ã·ã¹ãã æ­è¼ã",
-      "tags": [
-        "ã¿ã¤ãã³ã°",
-        "ã¹ãã¼ã",
-        "ã³ã³ã",
-        "ã¹ããå¯¾å¿"
-      ],
-      "release_date": "2026-04-16",
-      "status": "published"
-    }
-  ]
-}
+  {
+    "day": 3,
+    "filename": "Day003_TypingGame.html",
+    "title": "TYPE STRIKE",
+    "description": "スピードタイピングゲーム。BOSS WORDは3倍スコア。AIが設計した難易度システム搭載。",
+    "tags": ["タイピング", "スピード", "コンボ", "スマホ対応"],
+    "release_date": "2026-04-16",
+    "status": "published"
+  }
+]
