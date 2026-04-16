@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100日ゲームチャレンジ | AIが全部作った</title>
-  <meta property="og:title" content="AIが全部作った100日ゲームチャレンジ">
-  <meta property="og:description" content="戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。">
+  <title>100æ¥ã²ã¼ã ãã£ã¬ã³ã¸ | AIãå¨é¨ä½ã£ã</title>
+  <meta property="og:title" content="AIãå¨é¨ä½ã£ã100æ¥ã²ã¼ã ãã£ã¬ã³ã¸">
+  <meta property="og:description" content="æ¦ç¥ã»ã³ã¼ãã»ãã¶ã¤ã³ãå¨å·¥ç¨Claudeæå½ãæ¯æ¥ã¡ããã²ã¼ã ã100æ¥éä½ãç¶ãã¾ãã">
   <meta property="og:url" content="https://ryo-solo.github.io/100games/">
   <meta property="og:image" content="https://ryo-solo.github.io/100games/og-image.png">
   <meta property="og:type" content="website">
@@ -13,79 +13,31 @@
   <meta name="twitter:creator" content="@ryosuke_solo">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #080812;
-      min-height: 100vh;
-      font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP',monospace;
-      color: #fff;
-    }
-    header {
-      text-align: center;
-      padding: 60px 20px 40px;
-      border-bottom: 1px solid #1e1e3a;
-    }
+    body { background: #080812; min-height: 100vh; font-family: 'Hiragino Kaku Gothic ProN','Noto Sans JP',monospace; color: #fff; }
+    header { text-align: center; padding: 60px 20px 40px; border-bottom: 1px solid #1e1e3a; }
     .header-tag { color: #4f46e5; font-size: 12px; letter-spacing: 0.25em; font-weight: 700; margin-bottom: 14px; }
     header h1 { font-size: clamp(24px,5vw,40px); font-weight: 900; margin-bottom: 10px; }
     header h1 span { color: #a78bfa; }
     header p { color: #555; font-size: 13px; line-height: 1.8; }
-    .header-links {
-      margin-top: 20px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .header-links a {
-      padding: 8px 18px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.2s;
-      display: inline-block;
-    }
+    .header-links { margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .header-links a { padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 700; text-decoration: none; transition: all 0.2s; display: inline-block; }
     .link-note { background: rgba(79,70,229,0.15); border: 1px solid rgba(79,70,229,0.4); color: #a78bfa; }
     .link-x { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #ccc; }
     .header-links a:hover { opacity: 0.75; transform: translateY(-1px); }
-    .counter {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      padding: 30px 20px;
-      border-bottom: 1px solid #1e1e3a;
-    }
+    .counter { display: flex; justify-content: center; gap: 40px; padding: 30px 20px; border-bottom: 1px solid #1e1e3a; }
     .counter-item { text-align: center; }
     .counter-num { font-size: 36px; font-weight: 900; color: #4f46e5; line-height: 1; }
     .counter-label { font-size: 11px; color: #555; margin-top: 4px; letter-spacing: 0.1em; }
     main { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
     .section-title { font-size: 12px; color: #4f46e5; letter-spacing: 0.2em; font-weight: 700; margin-bottom: 24px; }
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-    .game-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid #1e1e3a;
-      border-radius: 14px;
-      padding: 20px;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.2s;
-      display: block;
-    }
-    .game-card:hover {
-      border-color: #4f46e5;
-      background: rgba(79,70,229,0.08);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(79,70,229,0.15);
-    }
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .game-card { background: rgba(255,255,255,0.04); border: 1px solid #1e1e3a; border-radius: 14px; padding: 20px; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
+    .game-card:hover { border-color: #4f46e5; background: rgba(79,70,229,0.08); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(79,70,229,0.15); }
     .card-day { font-size: 10px; color: #4f46e5; letter-spacing: 0.15em; font-weight: 700; margin-bottom: 8px; }
     .card-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
     .card-desc { font-size: 11px; color: #555; line-height: 1.7; margin-bottom: 14px; }
     .card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: rgba(79,70,229,0.12); border: 1px solid rgba(79,70,229,0.25); color: #818cf8; }
-    .tag.green { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: #34d399; }
     .card-play { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 11px; font-weight: 700; color: #4f46e5; }
     .game-card.soon { opacity: 0.3; pointer-events: none; cursor: default; }
     .game-card.soon:hover { transform: none; box-shadow: none; }
@@ -96,58 +48,55 @@
 <body>
   <header>
     <div class="header-tag">100 DAYS CHALLENGE</div>
-    <h1><span>AI</span>が全部作った<br>100日ゲームチャレンジ</h1>
-    <p>戦略・コード・デザイン、全工程Claude担当。<br>毎日ちがうゲームを100日間作り続けます。</p>
+    <h1><span>AI</span>ãå¨é¨ä½ã£ã<br>100æ¥ã²ã¼ã ãã£ã¬ã³ã¸</h1>
+    <p>æ¦ç¥ã»ã³ã¼ãã»ãã¶ã¤ã³ãå¨å·¥ç¨Claudeæå½ãæ¯æ¥ã¡ãã²ã¼ã ã100æ¥éä½ãç¶ãã¾ãã</p>
     <div class="header-links">
-      <a class="link-note" href="https://note.com/ryosuke_solo_26" target="_blank">📝 noteで記録を読む</a>
-      <a class="link-x" href="https://x.com/intent/tweet?text=AIが全部作った100日ゲームチャレンジ%20%23100日ゲームチャレンジ%20%23Claude&url=https%3A%2F%2Fryo-solo.github.io%2F100games%2F" target="_blank">𝕏 シェアする</a>
+      <a class="link-note" href="https://note.com/ryosuke_solo" target="_blank">&#128221; noteã§è¨é²ãèª­ã</a>
+      <a class="link-x" href="https://x.com/intent/tweet?text=AIãå¨é¨ä½ã£ã100æ¥ã²ã¼ã ãã£ã¬ã³ã¸%20%23100æ¥ã²ã¼ã ãã£ã¬ã³ã¸%20%23Claude&url=https%3A%2F%2Fryo-solo.github.io%2F100games%2F" target="_blank">&#120143; ã·ã§ã¢ãã</a>
     </div>
   </header>
   <div class="counter">
-    <div class="counter-item"><div class="counter-num" id="gamesMade">0</div><div class="counter-label">GAMES MADE</div></div>
-    <div class="counter-item"><div class="counter-num" id="daysLeft">0</div><div class="counter-label">DAYS LEFT</div></div>
+    <div class="counter-item"><div class="counter-num" id="gamesMade">3</div><div class="counter-label">GAMES MADE</div></div>
+    <div class="counter-item"><div class="counter-num" id="daysLeft">97</div><div class="counter-label">DAYS LEFT</div></div>
     <div class="counter-item"><div class="counter-num">100%</div><div class="counter-label">BY AI</div></div>
   </div>
   <main>
     <div class="section-title">GAMES</div>
     <div class="games-grid">
       <a class="game-card" href="Day001_TaskDodger.html">
-        <div class="card-day">DAY 001</div><div class="card-title">TASK DODGER</div>
-        <div class="card-desc">降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
-        <div class="card-tags"><span class="tag">アクション</span><span class="tag">スマホ対応</span><span class="tag green">AIパワーアップ</span></div>
-        <div class="card-play">▶ 今すぐ遊ぶ</div>
+        <div class="card-day">DAY 001</div>
+        <div class="card-title">TASK DODGER</div>
+        <div class="card-desc">éã£ã¦ããã¿ã¹ã¯ã¼ã¡ã¼ã«ãé¿ããªãããAIãã¯ã¼ã¢ãããã²ããï¼è½ã¡çãã¦ä»äºããã½ã­ãã¬ãã¼ãå®ãã</div>
+        <div class="card-tags"><span class="tag">ã¢ã¯ã·ã§ã³</span><span class="tag">ã¹ããå¯¾å¿</span><span class="tag">AIãã¯ã¼ã¢ãã</span></div>
+        <div class="card-play">&#9654; ä»ããéã¶</div>
       </a>
       <a class="game-card" href="Day002_SoloQuest.html">
-        <div class="card-day">DAY 002</div><div class="card-title">SOLO QUEST</div>
-        <div class="card-desc">ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。</div>
-        <div class="card-tags"><span class="tag">RPG</span><span class="tag">ターン制</span><span class="tag green">HD-2D</span></div>
-        <div class="card-play">▶ 今すぐ遊ぶ</div>
+        <div class="card-day">DAY 002</div>
+        <div class="card-title">SOLO QUEST</div>
+        <div class="card-desc">ã¿ã¼ã³å¶ãã³ã¸ã§ã³RPGãB5Fãç®æããAIããããçµµã¾ã§çæããæ¬æ ¼ã¹ãã©ã¤ãå®è£ã</div>
+        <div class="card-tags"><span class="tag">RPG</span><span class="tag">ã¿ã¼ã³å¶</span><span class="tag">HD-2D</span></div>
+        <div class="card-play">&#9654; ä»ããéã¶</div>
       </a>
-      <div class="game-card soon">
-        <div class="card-day">DAY 003</div><div class="card-title">Coming Soon</div>
-        <div class="card-desc">もうすぐ...</div>
-      </div>
+      <a class="game-card" href="Day003_TypingGame.html">
+        <div class="card-day">DAY 003</div>
+        <div class="card-title">TYPE STRIKE</div>
+        <div class="card-desc">ã¹ãã¼ãã¿ã¤ãã³ã°ã²ã¼ã ãåèªãç´ æ©ãã¿ã¤ããã¦ã³ã³ããç¹ãããBOSS WORDã¯3åã¹ã³ã¢ãAIãè¨­è¨ããé£æåº¦ã·ã¹ãã æ­è¼ã</div>
+        <div class="card-tags"><span class="tag">ã¿ã¤ãã³ã°</span><span class="tag">ã¹ãã¼ã</span><span class="tag">ã³ã³ã</span><span class="tag">ã¹ããå¯¾å¿</span></div>
+        <div class="card-play">&#9654; ä»ããéã¶</div>
+      </a>
     </div>
   </main>
-  <footer>Made by <span>AI</span> × りょうすけ — Strategy · Code · Design · All automated</footer>
+  <footer>Made by <span>AI</span> x ããããã â Strategy Â· Code Â· Design Â· All automated</footer>
   <script>
-    // ── 定数: 今後ここだけ変更すれば全体に反映 ──
-    const NOTE_URL = 'https://note.com/ryosuke_solo_26';
-    const CHALLENGE_START = '2026-04-13';
-    const CHALLENGE_DAYS = 100;
-
-    // note リンクを定数から注入（HTMLに直書きしても同じ値）
-    document.querySelector('.link-note').href = NOTE_URL;
-
     (function(){
-      // GAMES MADE: .soon以外のgame-cardを動的カウント
+      // GAMES MADE: .soonä»¥å¤ã®game-cardãåçã«ã¦ã³ã
       var made = document.querySelectorAll('.game-card:not(.soon)').length;
       document.getElementById('gamesMade').textContent = made;
-      // DAYS LEFT: 開始日から動的計算
-      var start = new Date(CHALLENGE_START);
+      // DAYS LEFT: éå§æ¥ããåçè¨ç®
+      var start = new Date('2026-04-13');
       var today = new Date(); today.setHours(0,0,0,0);
       var daysPassed = Math.floor((today - start) / 86400000);
-      var left = CHALLENGE_DAYS - daysPassed;
+      var left = 100 - daysPassed;
       document.getElementById('daysLeft').textContent = left < 0 ? 0 : left;
     })();
   </script>
