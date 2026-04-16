@@ -1,29 +1,42 @@
-[
-  {
-    "day": 1,
-    "filename": "Day001_TaskDodger.html",
-    "title": "TASK DODGER",
-    "description": "降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。",
-    "tags": ["アクション", "スマホ対応", "AIパワーアップ"],
-    "release_date": "2026-04-13",
-    "status": "published"
+{
+  "challenge": {
+    "title": "100日ゲームチャレンジ",
+    "subtitle": "毎日1本、AIと一緒にゲームを作り続ける100日間の記録。",
+    "start_date": "2026-04-14",
+    "total_days": 100
   },
-  {
-    "day": 2,
-    "filename": "Day002_SoloQuest.html",
-    "title": "SOLO QUEST",
-    "description": "ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。",
-    "tags": ["RPG", "ターン制", "HD-2D"],
-    "release_date": "2026-04-14",
-    "status": "published"
+  "social": {
+    "twitter": "@ryosuke_solo",
+    "note": "https://note.com/ryosuke_solo_26",
+    "og_image": "https://ryo-solo.github.io/100games/og.png"
   },
-  {
-    "day": 3,
-    "filename": "Day003_TypingGame.html",
-    "title": "TYPE STRIKE",
-    "description": "スピードタイピングゲーム。BOSS WORDは3倍スコア。AIが設計した難易度システム搭載。",
-    "tags": ["タイピング", "スピード", "コンボ", "スマホ対応"],
-    "release_date": "2026-04-16",
-    "status": "published"
-  }
-]
+  "games": [
+    {
+      "day": 1,
+      "filename": "Day001_TaskDodger.html",
+      "title": "TASK DODGER",
+      "description": "降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。",
+      "tags": ["アクション", "スマホ対応", "AIパワーアップ"],
+      "release_date": "2026-04-14",
+      "status": "published"
+    },
+    {
+      "day": 2,
+      "filename": "Day002_SoloQuest.html",
+      "title": "SOLO QUEST",
+      "description": "ターン制ダンジョンRPG。B5Fを目指せ。AIがドット絵まで生成した本格スプライト実装。",
+      "tags": ["RPG", "ターン制", "HD-2D"],
+      "release_date": "2026-04-15",
+      "status": "published"
+    },
+    {
+      "day": 3,
+      "filename": "Day003_GravityPop.html",
+      "title": "GRAVITY POP",
+      "description": "数字の小さいバブルから順にタップして割れ！コンボで得点爆増。30秒の重力パズル。",
+      "tags": ["パズル", "スマホ対応", "コンボ"],
+      "release_date": "2026-04-16",
+      "status": "published"
+    }
+  ]
+}
