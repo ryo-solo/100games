@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>100日ゲームチャレンジ | AIが全部作った</title>
   <meta property="og:title" content="AIが全部作った100日ゲームチャレンジ">
-  <meta property="og:description" content="戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。">
+  <meta property="og:description" content="毎日1本、AIと一緒にゲームを作り続ける100日間の記録。">
   <meta property="og:url" content="https://ryo-solo.github.io/100games/">
-  <meta property="og:image" content="https://ryo-solo.github.io/100games/og-image.png">
+  <meta property="og:image" content="https://ryo-solo.github.io/100games/og.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:creator" content="@ryosuke_solo">
@@ -49,15 +49,15 @@
   <header>
     <div class="header-tag">100 DAYS CHALLENGE</div>
     <h1><span>AI</span>が全部作った<br>100日ゲームチャレンジ</h1>
-    <p>戦略・コード・デザイン、全工程Claude担当。毎日ちがうゲームを100日間作り続けます。</p>
+    <p>毎日1本、AIと一緒にゲームを作り続ける100日間の記録。</p>
     <div class="header-links">
-      <a class="link-note" href="https://note.com/ryosuke_solo" target="_blank">&#128221; noteで記録を読む</a>
+      <a class="link-note" href="https://note.com/ryosuke_solo_26" target="_blank">&#128221; noteで記録を読む</a>
       <a class="link-x" href="https://x.com/intent/tweet?text=AIが全部作った100日ゲームチャレンジ%20%23100日ゲームチャレンジ%20%23Claude&url=https%3A%2F%2Fryo-solo.github.io%2F100games%2F" target="_blank">&#120143; シェアする</a>
     </div>
   </header>
   <div class="counter">
     <div class="counter-item"><div class="counter-num" id="gamesMade">3</div><div class="counter-label">GAMES MADE</div></div>
-    <div class="counter-item"><div class="counter-num" id="daysLeft">97</div><div class="counter-label">DAYS LEFT</div></div>
+    <div class="counter-item"><div class="counter-num" id="daysLeft">98</div><div class="counter-label">DAYS LEFT</div></div>
     <div class="counter-item"><div class="counter-num">100%</div><div class="counter-label">BY AI</div></div>
   </div>
   <main>
@@ -66,7 +66,7 @@
       <a class="game-card" href="Day001_TaskDodger.html">
         <div class="card-day">DAY 001</div>
         <div class="card-title">TASK DODGER</div>
-        <div class="card-desc">降ってくるタスク・メールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
+        <div class="card-desc">降ってくるタスクーメールを避けながら、AIパワーアップをゲット！落ち着いて仕事するソロプレナーを守れ。</div>
         <div class="card-tags"><span class="tag">アクション</span><span class="tag">スマホ対応</span><span class="tag">AIパワーアップ</span></div>
         <div class="card-play">&#9654; 今すぐ遊ぶ</div>
       </a>
@@ -80,8 +80,8 @@
       <a class="game-card" href="Day003_GravityPop.html">
         <div class="card-day">DAY 003</div>
         <div class="card-title">GRAVITY POP</div>
-        <div class="card-desc">バブルを小さい順にタップして割れ！30秒コンボアクション。スマホ特化設計。</div>
-        <div class="card-tags"><span class="tag">タップ</span><span class="tag">スマホ特化</span><span class="tag">コンボ</span><span class="tag">アクション</span></div>
+        <div class="card-desc">数字の小さいバブルから順にタップして割れ！コンボで得点爆増。30秒の重力パズル。</div>
+        <div class="card-tags"><span class="tag">パズル</span><span class="tag">スマホ対応</span><span class="tag">コンボ</span></div>
         <div class="card-play">&#9654; 今すぐ遊ぶ</div>
       </a>
     </div>
@@ -93,7 +93,7 @@
       var made = document.querySelectorAll('.game-card:not(.soon)').length;
       document.getElementById('gamesMade').textContent = made;
       // DAYS LEFT: 開始日から動的計算
-      var start = new Date('2026-04-13');
+      var start = new Date('2026-04-14');
       var today = new Date(); today.setHours(0,0,0,0);
       var daysPassed = Math.floor((today - start) / 86400000);
       var left = 100 - daysPassed;
