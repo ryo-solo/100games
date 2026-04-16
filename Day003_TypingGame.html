@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TYPE STRIKE â Day 003</title>
+<title>TYPE STRIKE — Day 003</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{
@@ -59,7 +59,7 @@ html,body{
 }
 #word-counter{font-size:9px;color:#333;letter-spacing:.2em;margin-bottom:12px}
 
-/* ã²ãããªï¼å¤§ï¼ */
+/* ひらがな（大） */
 #word-jp{
   font-size:38px;font-weight:900;
   font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
@@ -69,12 +69,12 @@ html,body{
   transition:opacity .1s;
 }
 
-/* ã­ã¼ãå­è¡¨ç¤ºï¼ã¿ã¤ãå¯¾è±¡ï¼ */
+/* ローマ字表示（タイプ対象） */
 #word-display{
   font-size:22px;font-weight:900;letter-spacing:.12em;
   font-family:'Courier New',Courier,monospace;
   text-align:center;min-height:36px;
-  display:flex;flew-wrap:wrap;justify-content:center;align-items:center;gap:1px;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:1px;
 }
 .letter{
   display:inline-block;
@@ -168,7 +168,7 @@ html,body{
   -webkit-appearance:none;
 }
 .btn-start:active{transform:scale(.96)}
-.ts-footer{mrotin-top:20px;font-size:10px;color:#222;letter-spacing:.08em}
+.ts-footer{margin-top:20px;font-size:10px;color:#222;letter-spacing:.08em}
 
 /* Game Over */
 .go-label{font-size:10px;color:#f87171;letter-spacing:.2em;font-weight:700;margin-bottom:16px}
@@ -260,19 +260,19 @@ html,body{
     <div class="ts-title">TYPE STRIKE</div>
     <div class="ts-sub">JAPANESE TYPING CHALLENGE</div>
     <div class="ts-desc">
-      æ¥æ¬èªã®åèªãã­ã¼ãå­ã§ã¿ã¤ã<br>
-      ã³ã³ãã§<span>ã¹ã³ã¢çå¢</span> ð¥<br>
-      <span>BOSS</span> ã¯3åã¹ã³ã¢ â¡
-      <span class="romaji-hint">ããã°ã â ganbare</span>
+      日本語の単語をローマ字でタイプ<br>
+      コンボで<span>スコア爆増</span> 💥<br>
+      <span>BOSS</span> は3倍スコア ⚡
+      <span class="romaji-hint">がんばれ → ganbare</span>
     </div>
-    <button class="btn-start" id="btn-start">âº START</button>
+    <button class="btn-start" id="btn-start">► START</button>
     <div class="ts-footer">ryo-solo.github.io/100games</div>
   </div>
 
   <!-- GAME OVER SCREEN -->
   <div class="screen" id="gameover-screen" style="display:none">
-    <div class="go-label">â GAME OVER â</div>
-    <div class="go-title">çµæçºè¡¨</div>
+    <div class="go-label">— GAME OVER —</div>
+    <div class="go-title">結果発表</div>
     <div class="go-score" id="go-score">0</div>
     <div class="go-score-label">TOTAL SCORE</div>
     <div class="go-stats">
@@ -289,10 +289,10 @@ html,body{
         <div class="go-stat-label">MAX LEVEL</div>
       </div>
     </div>
-    <button class="btn-retry" id="btn-retry">ããä¸åº¦</button>
+    <button class="btn-retry" id="btn-retry">もう一度</button>
     <button class="btn-share" id="btn-share">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      ð ã¹ã³ã¢ãã·ã§ã¢
+      𝕏 スコアをシェア
     </button>
   </div>
 
@@ -310,7 +310,7 @@ html,body{
 
   <!-- WORD AREA -->
   <div id="word-area">
-    <div id="word-counter">WORD 1 / â</div>
+    <div id="word-counter">WORD 1 / ∞</div>
     <div id="word-jp"></div>
     <div id="word-display"></div>
     <div id="category-badge">LOADING</div>
@@ -322,7 +322,7 @@ html,body{
     <input type="text" id="typing-input"
       autocomplete="off" autocorrect="off" autocapitalize="none"
       spellcheck="false"
-      placeholder="ã­ã¼ãå­ã§ã¿ã¤ã..."
+      placeholder="ローマ字でタイプ..."
       style="display:none">
   </div>
 
@@ -337,46 +337,46 @@ html,body{
 
 <script>
 // ==================== WORD LIST ====================
-// w: è¡¨ç¤ºããæ¥æ¬èª, r: ã¿ã¤ãããã­ã¼ãå­, c: ã«ãã´ãª
+// w: 表示する日本語, r: タイプするローマ字, c: カテゴリ
 const WORDS = [
-  // ããæ°
-  {w:'ããã°ã',         r:'ganbare',           c:'ããæ°'},
-  {w:'ã¾ãã«ã¡',         r:'mainichi',           c:'ããæ°'},
-  {w:'ã¤ãããªã',       r:'tsuyokunare',        c:'ããæ°'},
-  {w:'ã¡ãããã',       r:'chousen',            c:'ããæ°'},
-  {w:'ããããããª',     r:'akirameruna',        c:'ããæ°'},
-  {w:'ããã',           r:'ugoku',              c:'ããæ°'},
-  {w:'ããã',           r:'mezase',             c:'ããæ°'},
-  {w:'ãã®ããã',       r:'tanoshimou',         c:'ããæ°'},
-  {w:'ãã¾ãã',         r:'imayare',            c:'ããæ°'},
-  {w:'ã¾ãã«ããã',     r:'maenisusume',        c:'ããæ°'},
-  // ã½ã­
-  {w:'ããã',           r:'jiyuu',              c:'ã½ã­'},
-  {w:'ããã¨',           r:'shigoto',            c:'ã½ã­'},
-  {w:'ããã²ãã',       r:'mokuhyou',           c:'ã½ã­'},
-  {w:'ãµãããã',       r:'fukugyou',           c:'ã½ã­'},
-  {w:'ãã©ãã',         r:'jidouka',            c:'ã½ã­'},
-  {w:'ãããã«ãã',     r:'shuunyuu',           c:'ã½ã­'},
-  {w:'ã§ããã',         r:'dejitaru',           c:'ã½ã­'},
-  {w:'ããã¡ãã',       r:'seichou',            c:'ã½ã­'},
-  {w:'ã©ããã¤',         r:'dokuritsu',          c:'ã½ã­'},
-  {w:'ã¿ãã',           r:'mirai',              c:'ã½ã­'},
-  // ããã¯
-  {w:'ãããã©',         r:'kuroudo',            c:'ããã¯'},
-  {w:'ã·ãããã',       r:'puroguramu',         c:'ããã¯'},
-  {w:'ã§ã·ãã',         r:'depuroi',            c:'ããã¯'},
-  {w:'ãã¿ã£ã¨',         r:'komitto',            c:'ããã¯'},
-  {w:'ã§ã°ã£ã',         r:'debaggu',            c:'ããã¯'},
-  {w:'ãããã',         r:'eiai',               c:'ããã¯'},
-  {w:'ãããããããã', r:'kikaigakushuu',      c:'ããã¯'},
-  {w:'ãã£ã¨ã¯ã¶',       r:'gittohabu',          c:'ããã¯'},
+  // やる気
+  {w:'がんばれ',         r:'ganbare',           c:'やる気'},
+  {w:'まいにち',         r:'mainichi',           c:'やる気'},
+  {w:'つよくなれ',       r:'tsuyokunare',        c:'やる気'},
+  {w:'ちょうせん',       r:'chousen',            c:'やる気'},
+  {w:'あきらめるな',     r:'akirameruna',        c:'やる気'},
+  {w:'うごく',           r:'ugoku',              c:'やる気'},
+  {w:'めざせ',           r:'mezase',             c:'やる気'},
+  {w:'たのしもう',       r:'tanoshimou',         c:'やる気'},
+  {w:'いまやれ',         r:'imayare',            c:'やる気'},
+  {w:'まえにすすめ',     r:'maenisusume',        c:'やる気'},
+  // ソロ
+  {w:'じゆう',           r:'jiyuu',              c:'ソロ'},
+  {w:'しごと',           r:'shigoto',            c:'ソロ'},
+  {w:'もくひょう',       r:'mokuhyou',           c:'ソロ'},
+  {w:'ふくぎょう',       r:'fukugyou',           c:'ソロ'},
+  {w:'じどうか',         r:'jidouka',            c:'ソロ'},
+  {w:'しゅうにゅう',     r:'shuunyuu',           c:'ソロ'},
+  {w:'でじたる',         r:'dejitaru',           c:'ソロ'},
+  {w:'せいちょう',       r:'seichou',            c:'ソロ'},
+  {w:'どくりつ',         r:'dokuritsu',          c:'ソロ'},
+  {w:'みらい',           r:'mirai',              c:'ソロ'},
+  // テック
+  {w:'くろうど',         r:'kuroudo',            c:'テック'},
+  {w:'ぷろぐらむ',       r:'puroguramu',         c:'テック'},
+  {w:'でぷろう',         r:'depuroi',            c:'テック'},
+  {w:'こみっと',         r:'komitto',            c:'テック'},
+  {w:'でばっぐ',         r:'debaggu',            c:'テック'},
+  {w:'えいあい',         r:'eiai',               c:'テック'},
+  {w:'きかいがくしゅう', r:'kikaigakushuu',      c:'テック'},
+  {w:'ぎっとはぶ',       r:'gittohabu',          c:'テック'},
   // BOSS
-  {w:'ã²ããã«ã¡ã¡ãããã',   r:'hyakunichichalennji',      c:'BOSS'},
-  {w:'ã¾ãã«ã¡ããããããã¼ã',r:'mainichiatarashiigemu',    c:'BOSS'},
-  {w:'ãããã©ãããã¶ã¤ãã£ã',r:'kuroudogazenbutotsukutta', c:'BOSS'},
-  {w:'ãã©ããã§ãããã«ãªã',  r:'jidoukadejiyuuninaru',     c:'BOSS'},
-  {w:'ããã§ã¯ãããã²ã¨ãã§',  r:'sorodehatarakuhitoride',   c:'BOSS'},
-  {w:'ããã¨ã¨ãã«ããã¡ãããã',r:'aitotomoniseichousuru',   c:'BOSS'},
+  {w:'ひゃくにちちゃれんじ',   r:'hyakunichichalennji',      c:'BOSS'},
+  {w:'まいにちあたらしいげーむ',r:'mainichiatarashiigemu',    c:'BOSS'},
+  {w:'くろうどがぜんぶつくった',r:'kuroudogazenbutotsukutta', c:'BOSS'},
+  {w:'じどうかでじゆうになる',  r:'jidoukadejiyuuninaru',     c:'BOSS'},
+  {w:'そろではたらくひとりで',  r:'sorodehatarakuhitoride',   c:'BOSS'},
+  {w:'あいとともにせいちょうする',r:'aitotomoniseichousuru',   c:'BOSS'},
 ];
 
 const BOSS_MULT = 3;
@@ -384,7 +384,7 @@ const COMBO_THRESHOLDS = [1,2,3,5,10,15,20];
 const COMBO_COLORS = ['#9ca3af','#22d3ee','#4ade80','#fbbf24','#f97316','#a78bfa','#f87171'];
 const COMBO_LABELS = ['1x','2x','3x','5x','10x','15x','20x'];
 const BASE_TIME = 3000;
-const TIME_PER_CHAR = 260; // ã­ã¼ãå­ã¯éããã¦ã
+const TIME_PER_CHAR = 260; // ローマ字は速く打てる
 const LEVEL_UP_EVERY = 5;
 const TIME_ACCEL = 0.90;
 
@@ -428,7 +428,7 @@ function pickWord(){
   return src[Math.floor(Math.random()*src.length)];
 }
 
-// ==================== RENDER (ã­ã¼ãå­) ====================
+// ==================== RENDER (ローマ字) ====================
 function renderWord(romaji, typed){
   $wordDisp.innerHTML='';
   for(let i=0;i<romaji.length;i++){
@@ -442,7 +442,7 @@ function renderWord(romaji, typed){
   }
 }
 
-// 1æå­ç¢ºå®ãã¨ã«ãããã¢ãã¡
+// 1文字確定ごとにポップアニメ
 function popLetter(idx){
   const letters=$wordDisp.querySelectorAll('.letter');
   if(!letters[idx]) return;
@@ -506,21 +506,21 @@ function stopTimer(){ if(timerRAF) cancelAnimationFrame(timerRAF); timerRAF=null
 // ==================== LOAD WORD ====================
 function loadNextWord(){
   const entry=pickWord();
-  currentWord=entry.r;  // ã­ã¼ãå­ï¼ã¿ã¤ãå¯¾è±¡ï¼
-  currentJp=entry.w;    // ã²ãããªï¼è¡¨ç¤ºï¼
+  currentWord=entry.r;  // ローマ字（タイプ対象）
+  currentJp=entry.w;    // ひらがな（表示）
   currentIdx=0;
   usedWords.push(entry.w);
 
-  $catBadge.textContent=entry.c==='BOSS'?'â¡ BOSS WORD â¡':entry.c;
+  $catBadge.textContent=entry.c==='BOSS'?'⚡ BOSS WORD ⚡':entry.c;
   $catBadge.style.color=entry.c==='BOSS'?'#fbbf24':'#4f46e5';
   $catBadge.style.borderColor=entry.c==='BOSS'?'rgba(251,191,36,.3)':'rgba(79,70,229,.2)';
   $catBadge.style.background=entry.c==='BOSS'?'rgba(251,191,36,.08)':'rgba(79,70,229,.1)';
 
   level=Math.min(Math.floor(wordsTyped/LEVEL_UP_EVERY)+1,10);
   $diffBadge.textContent='LV '+level;
-  $counter.textContent='WORD '+(wordsTyped+1)+' / â';
+  $counter.textContent='WORD '+(wordsTyped+1)+' / ∞';
 
-  // ã²ãããªï¼è¡¨ç¤ºã¢ã¼ã¡
+  // ひらがな表示アニメ
   $wordJp.textContent=currentJp;
   $wordJp.classList.remove('word-enter');
   void $wordJp.offsetWidth;
@@ -553,17 +553,17 @@ function onTimeUp(){
   },400);
 }
 
-// ==================== INPUT (ã­ã¼ãå­ã»å³æå¤å®) ====================
+// ==================== INPUT (ローマ字・即時判定) ====================
 $input.addEventListener('input', function(){
   if(state!=='playing') return;
   const val=this.value;
 
   for(let i=currentIdx; i<val.length && i<currentWord.length; i++){
     if(val[i]===currentWord[i]){
-      popLetter(i);   // â 1æå­ãã¨ã«ãããï¼
+      popLetter(i);   // ← 爽快感：1文字ごとにポップ！
       currentIdx++;
     } else {
-      // ãã¹
+      // ミス
       this.value=val.slice(0,currentIdx);
       this.classList.add('wrong-input');
       setTimeout(()=>this.classList.remove('wrong-input'),280);
@@ -596,7 +596,7 @@ function onWordComplete(){
 
   flashScreen(isBoss?'rgba(251,191,36,.2)':'rgba(74,222,128,.12)');
   spawnParticles(isBoss?'#fbbf24':color, isBoss?16:10);
-  if(combo>=3) showComboPopup(isBoss?'â¡ BOSS Ã'+BOSS_MULT+'!':getComboLabel(combo), isBoss?'#fbbf24':color);
+  if(combo>=3) showComboPopup(isBoss?'⚡ BOSS ×'+BOSS_MULT+'!':getComboLabel(combo), isBoss?'#fbbf24':color);
 
   updateScoreDisplay();
   updateComboDisplay();
@@ -631,7 +631,7 @@ document.getElementById('btn-retry').addEventListener('click', ()=>{ $overScr.st
 
 // ==================== SHARE ====================
 document.getElementById('btn-share').addEventListener('click', ()=>{
-  const text=encodeURIComponent(`TYPE STRIKE â Day003\nã¹ã³ã¢: ${score.toLocaleString()}pts\nã¯ã¼ãæ°: ${wordsTyped} / ãã¹ãã³ã³ã: ${bestCombo}x\n#100æ¥ã²ã¼ã ãã£ã¬ã³ã¸ #TypeStrike`);
+  const text=encodeURIComponent(`TYPE STRIKE — Day003\nスコア: ${score.toLocaleString()}pts\nワード数: ${wordsTyped} / ベストコンボ: ${bestCombo}x\n#100日ゲームチャレンジ #TypeStrike`);
   const url=encodeURIComponent('https://ryo-solo.github.io/100games/Day003_TypingGame.html');
   window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`,'_blank');
 });
