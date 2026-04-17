@@ -493,8 +493,8 @@ class PaperPlane {
     for (const wf of windForces) {
       const dist = Math.hypot(this.x - wf.x, this.y - wf.y);
       const falloff = Math.max(0, 1 - dist / wf.radius);
-      wxSum += wf.vx * falloff * 0.55;
-      wySum += wf.vy * falloff * 0.55;
+      wxSum += wf.vx * wf.life * falloff * 0.55;
+      wySum += wf.vy * wf.life * falloff * 0.55;
     }
 
     // 重力
@@ -991,9 +991,9 @@ function gameLoop(ts) {
     drawWindArrows();
 
     // 機体更新
-    plane.update(windForces.map(wf => ({
-      x: wf.x - camX, y: wf.y, vx: wf.vx * wf.life, vy: wf.vy * wf.life, radius: wf.radius
-    })), dt);
+    plane.update(windForces, dt);  // ワールド座標統一（座標系バグ修正）
+
+
 
     // スポーン
     spawnObjects();
