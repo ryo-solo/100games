@@ -40,13 +40,12 @@
     },
     {
       "day": 3,
-      "filename": "Day003_TypingGame.html",
-      "title": "TYPE STRIKE",
-      "description": "スピードタイピングゲーム。単語を素早くタイプしてコンボを繋げろ。BOSS WORDは3倍スコア。AIが設計した難易度システム搭載。",
+      "filename": "Day003_GravityPop.html",
+      "title": "GRAVITY POP",
+      "description": "重力を操るバブルシューター。タップで重力方向を反転、連鎖爆発でハイスコアを狙え。",
       "tags": [
-        "タイピング",
-        "スピード",
-        "コンボ",
+        "アクション",
+        "重力操作",
         "スマホ対応"
       ],
       "release_date": "2026-04-16",
