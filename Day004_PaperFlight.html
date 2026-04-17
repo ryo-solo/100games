@@ -40,12 +40,13 @@
     text-align: center;
     pointer-events: none;
   }
-  .screen.hidden { display: none; }
+  .screen.hidden, #hud.hidden { display: none; }
 
   /* タイトル画面 */
   #titleScreen {
     background: transparent;
     pointer-events: auto;
+    z-index: 15;
   }
   .notebook-title {
     font-size: clamp(32px, 8vw, 48px);
@@ -156,6 +157,80 @@
     background: rgba(255,255,255,0.5);
     transform: rotate(0.3deg);
   }
+  .go-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    max-width: 260px;
+  }
+  .share-btn {
+    background: #1a1a2e;
+    color: #f5f0e8;
+    border: none;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+    padding: 12px 28px;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.1s;
+  }
+  .share-btn:active { transform: scale(0.97); }
+  .top-btn {
+    background: none;
+    border: 1.5px solid #999;
+    color: #666;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 8px 24px;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.1s;
+  }
+  .top-btn:active { transform: scale(0.97); }
+
+  /* チュートリアル */
+  #tutorial {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245,240,232,0.85);
+    z-index: 30;
+    pointer-events: auto;
+    text-align: center;
+    padding: 20px;
+  }
+  #tutorial.hidden { display: none; }
+  .tut-arrow {
+    font-size: 60px;
+    color: #4a90d9;
+    animation: swipeUp 1.2s ease-in-out infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes swipeUp {
+    0% { transform: translateY(20px); opacity: 0.3; }
+    50% { transform: translateY(-20px); opacity: 1; }
+    100% { transform: translateY(20px); opacity: 0.3; }
+  }
+  .tut-text {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: #1a1a2e;
+    letter-spacing: 1px;
+    line-height: 2;
+    margin-bottom: 20px;
+  }
+  .tut-sub {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 1px;
+  }
 </style>
 </head>
 <body>
@@ -193,7 +268,21 @@
       滞空時間: <span id="goAirtime">0.0</span>s<br>
       風反応: <span id="goLatency">—</span>ms
     </div>
-    <button class="start-btn" id="retryBtn">↺ RETRY</button>
+    <div class="go-buttons">
+      <button class="start-btn" id="retryBtn">↺ RETRY</button>
+      <button class="share-btn" id="shareBtn">𝕏 SHARE SCORE</button>
+      <button class="top-btn" id="topBtn">◁ TITLE</button>
+    </div>
+  </div>
+
+  <!-- チュートリアル -->
+  <div id="tutorial" class="hidden">
+    <div class="tut-arrow">☝</div>
+    <div class="tut-text">
+      画面を上にスワイプ！<br>
+      風を起こして飛行機を飛ばそう
+    </div>
+    <div class="tut-sub">タップで閉じる</div>
   </div>
 </div>
 
@@ -303,7 +392,7 @@ function drawNotebook(scrollX) {
 }
 
 // ============================================================
-// 風パーディクル
+// 風パーティクル
 // ============================================================
 const windParticles = [];
 function spawnWindParticles(x, y, vx, vy, count) {
@@ -749,6 +838,7 @@ let lastWindLatency = null;
 
 // タッチ/マウス入力
 let touchStart = null, lastTouchTime = 0;
+let tutorialShown = false;
 
 // ============================================================
 // 初期化
@@ -1024,16 +1114,18 @@ function getPos(e) {
 }
 
 canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
   if (state !== 'playing') return;
+  e.preventDefault();
   const p = getPos(e);
   touchStart = { x: p.x, y: p.y, t: Date.now() };
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
-  e.preventDefault();
   if (state !== 'playing' || !touchStart) return;
-  const p = getPos(e);
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const t = e.changedTouches ? e.changedTouches[0] : e;
+  const p = { x: t.clientX - rect.left, y: t.clientY - rect.top };
   const dt = (Date.now() - touchStart.t) / 1000;
   const dx = p.x - touchStart.x;
   const dy = p.y - touchStart.y;
@@ -1070,12 +1162,38 @@ document.getElementById('startBtn').addEventListener('click', () => {
   initGame();
   state = 'playing';
   lastWindLatency = null;
+  // 初回のみチュートリアル表示
+  if (!tutorialShown) {
+    tutorialShown = true;
+    state = 'tutorial';
+    document.getElementById('tutorial').classList.remove('hidden');
+  }
+});
+document.getElementById('tutorial').addEventListener('click', () => {
+  document.getElementById('tutorial').classList.add('hidden');
+  state = 'playing';
 });
 document.getElementById('retryBtn').addEventListener('click', () => {
   document.getElementById('gameOverScreen').classList.add('hidden');
   initGame();
   state = 'playing';
   lastWindLatency = null;
+});
+document.getElementById('shareBtn').addEventListener('click', () => {
+  const dist = document.getElementById('goDistVal').textContent;
+  const stars = document.getElementById('goStarVal').textContent;
+  const text = `✈ PAPER FLIGHT — Day 004\n飛距離: ${dist}m ★${stars}個\n\n紙飛行機をスワイプで操縦！\n#100日ゲームチャレンジ #Day004`;
+  const url = 'https://ryo-solo.github.io/100games/Day004_PaperFlight.html';
+  window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+});
+document.getElementById('topBtn').addEventListener('click', () => {
+  document.getElementById('gameOverScreen').classList.add('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('titleScreen').classList.remove('hidden');
+  state = 'title';
+  // 背景リセット
+  camX = 0;
+  windParticles.length = 0;
 });
 
 // ============================================================
