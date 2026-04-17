@@ -493,8 +493,8 @@ class PaperPlane {
     for (const wf of windForces) {
       const dist = Math.hypot(this.x - wf.x, this.y - wf.y);
       const falloff = Math.max(0, 1 - dist / wf.radius);
-      wxSum += wf.vx * falloff * 0.4;
-      wySum += wf.vy * falloff * 0.4;
+      wxSum += wf.vx * falloff * 0.55;
+      wySum += wf.vy * falloff * 0.55;
     }
 
     // 重力
@@ -524,7 +524,7 @@ class PaperPlane {
     }
 
     // 速度クランプ
-    const maxSpeed = this.inkMode ? 9 : 6;
+    const maxSpeed = this.inkMode ? 11 : 8;
     const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     if (spd > maxSpeed) { this.vx *= maxSpeed / spd; this.vy *= maxSpeed / spd; }
     // 最低前進速度
@@ -878,7 +878,7 @@ function addWind(x, y, vx, vy) {
     y,
     vx: vx * 2.5,
     vy: vy * 2.5,
-    radius: 90 + speed * 8,
+    radius: 130 + speed * 12,
     life: 1.0,
     decay: 0.04
   });
@@ -1116,6 +1116,7 @@ function getPos(e) {
 canvas.addEventListener('touchstart', e => {
   if (state !== 'playing') return;
   e.preventDefault();
+  windForces.length = 0;  // 旧風力をリセット→2回目スワイプを確実に反映
   const p = getPos(e);
   touchStart = { x: p.x, y: p.y, t: Date.now() };
 }, { passive: false });
@@ -1140,6 +1141,7 @@ canvas.addEventListener('touchend', e => {
 let mouseDown = null;
 canvas.addEventListener('mousedown', e => {
   if (state !== 'playing') return;
+  windForces.length = 0;  // 旧風力をリセット
   mouseDown = { x: e.offsetX, y: e.offsetY, t: Date.now() };
 });
 canvas.addEventListener('mouseup', e => {
