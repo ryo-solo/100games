@@ -1129,9 +1129,9 @@ canvas.addEventListener('touchend', e => {
   const dt = (Date.now() - touchStart.t) / 1000;
   const dx = p.x - touchStart.x;
   const dy = p.y - touchStart.y;
-  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 1000 + 50);
-  if (Math.sqrt(dx*dx + dy*dy) > 8) {
-    addWind(touchStart.x, touchStart.y, dx * speed * 0.12, dy * speed * 0.12);
+  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 600 + 20);
+  if (Math.sqrt(dx*dx + dy*dy) > 5) {
+    addWind(touchStart.x, touchStart.y, dx * speed * 0.32, dy * speed * 0.32);
   }
   touchStart = null;
 }, { passive: false });
@@ -1147,9 +1147,9 @@ canvas.addEventListener('mouseup', e => {
   const dx = e.offsetX - mouseDown.x;
   const dy = e.offsetY - mouseDown.y;
   const dt = (Date.now() - mouseDown.t) / 1000 + 0.05;
-  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 1000 + 50);
-  if (Math.sqrt(dx*dx+dy*dy) > 8) {
-    addWind(mouseDown.x, mouseDown.y, dx * speed * 0.12, dy * speed * 0.12);
+  const speed = Math.sqrt(dx * dx + dy * dy) / (dt * 600 + 20);
+  if (Math.sqrt(dx*dx+dy*dy) > 5) {
+    addWind(mouseDown.x, mouseDown.y, dx * speed * 0.32, dy * speed * 0.32);
   }
   mouseDown = null;
 });
